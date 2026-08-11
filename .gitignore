@@ -1,0 +1,78 @@
+# ==============================
+# Environment Variables
+# ==============================
+.env
+.env.*
+!.env.example
+
+# ==============================
+# Python
+# ==============================
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Virtual Environments
+.venv/
+venv/
+env/
+
+# ==============================
+# Node / Next.js
+# ==============================
+node_modules/
+.next/
+out/
+dist/
+.turbo/
+.vercel/
+
+# ==============================
+# IDE / Editor
+# ==============================
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+
+# ==============================
+# OS Files
+# ==============================
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ==============================
+# Logs
+# ==============================
+*.log
+logs/
+
+# ==============================
+# Temporary Files
+# ==============================
+*.tmp
+*.temp
+
+# ==============================
+# Data / Generated Files
+# ==============================
+data/raw/*
+data/processed/*
+data/embeddings/*
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+!data/embeddings/.gitkeep
+
+# ==============================
+# Test / Coverage
+# ==============================
+.pytest_cache/
+.coverage
+htmlcov/
