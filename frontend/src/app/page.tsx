@@ -1,7 +1,11 @@
+import Hero from "@/components/landing/Hero";
+import TripForm from "@/components/trip-planner/TripForm";
+
 export default function Home() {
   return (
-    <main className="min-h-screen">
-      <h1>Voyara</h1>
+    <main>
+      <Hero />
+      <TripForm />
     </main>
   );
 }
