@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 const travelStyles = ["Adventure", "Relaxed", "Luxury", "Budget"];
+
 const interests = [
   "Food",
   "Nature",
@@ -12,20 +13,77 @@ const interests = [
   "Shopping",
 ];
 
+interface TripFormData {
+  destination: string;
+  start_date: string;
+  end_date: string;
+  travelers: number;
+  budget: number;
+  travel_style: string[];
+  interests: string[];
+}
+
 export default function TripForm() {
-  const [selectedStyles, setSelectedStyles] = useState<string[]>([]);
-  const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
+  const [formData, setFormData] = useState<TripFormData>({
+    destination: "",
+    start_date: "",
+    end_date: "",
+    travelers: 2,
+    budget: 0,
+    travel_style: [],
+    interests: [],
+  });
+
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
 
   const toggleItem = (
     item: string,
-    selected: string[],
-    setSelected: React.Dispatch<React.SetStateAction<string[]>>,
+    field: "travel_style" | "interests",
   ) => {
-    setSelected((current) =>
-      current.includes(item)
-        ? current.filter((value) => value !== item)
-        : [...current, item],
-    );
+    setFormData((current) => ({
+      ...current,
+      [field]: current[field].includes(item)
+        ? current[field].filter((value) => value !== item)
+        : [...current[field], item],
+    }));
+  };
+
+  const handleSubmit = async () => {
+    setLoading(true);
+    setMessage("");
+    setError("");
+
+    try {
+      const response = await fetch("http://127.0.0.1:8000/api/trips", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        const validationMessage =
+          data.detail?.[0]?.msg || "Something went wrong.";
+
+        throw new Error(validationMessage);
+      }
+
+      setMessage("Trip received successfully! Voyara is ready to plan.");
+      console.log("Voyara API response:", data);
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Unable to connect to the Voyara API.",
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -63,6 +121,13 @@ export default function TripForm() {
               <input
                 id="destination"
                 type="text"
+                value={formData.destination}
+                onChange={(event) =>
+                  setFormData({
+                    ...formData,
+                    destination: event.target.value,
+                  })
+                }
                 placeholder="e.g. Kyoto, Japan"
                 className="w-full rounded-2xl border border-gray-200 bg-white px-5 py-4 text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-gray-500 focus:ring-2 focus:ring-gray-200"
               />
@@ -80,6 +145,13 @@ export default function TripForm() {
                 <input
                   id="start-date"
                   type="date"
+                  value={formData.start_date}
+                  onChange={(event) =>
+                    setFormData({
+                      ...formData,
+                      start_date: event.target.value,
+                    })
+                  }
                   className="w-full rounded-2xl border border-gray-200 bg-white px-5 py-4 text-gray-700 outline-none transition focus:border-gray-500 focus:ring-2 focus:ring-gray-200"
                 />
               </div>
@@ -95,6 +167,13 @@ export default function TripForm() {
                 <input
                   id="end-date"
                   type="date"
+                  value={formData.end_date}
+                  onChange={(event) =>
+                    setFormData({
+                      ...formData,
+                      end_date: event.target.value,
+                    })
+                  }
                   className="w-full rounded-2xl border border-gray-200 bg-white px-5 py-4 text-gray-700 outline-none transition focus:border-gray-500 focus:ring-2 focus:ring-gray-200"
                 />
               </div>
@@ -113,7 +192,14 @@ export default function TripForm() {
                   id="travelers"
                   type="number"
                   min="1"
-                  defaultValue="2"
+                  max="50"
+                  value={formData.travelers}
+                  onChange={(event) =>
+                    setFormData({
+                      ...formData,
+                      travelers: Number(event.target.value),
+                    })
+                  }
                   className="w-full rounded-2xl border border-gray-200 bg-white px-5 py-4 text-gray-900 outline-none transition focus:border-gray-500 focus:ring-2 focus:ring-gray-200"
                 />
               </div>
@@ -129,8 +215,15 @@ export default function TripForm() {
                 <input
                   id="budget"
                   type="number"
-                  min="0"
-                  placeholder="₹50,000"
+                  min="1"
+                  value={formData.budget || ""}
+                  onChange={(event) =>
+                    setFormData({
+                      ...formData,
+                      budget: Number(event.target.value),
+                    })
+                  }
+                  placeholder="50000"
                   className="w-full rounded-2xl border border-gray-200 bg-white px-5 py-4 text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-gray-500 focus:ring-2 focus:ring-gray-200"
                 />
               </div>
@@ -143,19 +236,13 @@ export default function TripForm() {
 
               <div className="flex flex-wrap gap-3">
                 {travelStyles.map((style) => {
-                  const selected = selectedStyles.includes(style);
+                  const selected = formData.travel_style.includes(style);
 
                   return (
                     <button
                       key={style}
                       type="button"
-                      onClick={() =>
-                        toggleItem(
-                          style,
-                          selectedStyles,
-                          setSelectedStyles,
-                        )
-                      }
+                      onClick={() => toggleItem(style, "travel_style")}
                       className={`rounded-full border px-5 py-2.5 text-sm font-medium transition ${
                         selected
                           ? "border-gray-900 bg-gray-900 text-white"
@@ -176,19 +263,13 @@ export default function TripForm() {
 
               <div className="flex flex-wrap gap-3">
                 {interests.map((interest) => {
-                  const selected = selectedInterests.includes(interest);
+                  const selected = formData.interests.includes(interest);
 
                   return (
                     <button
                       key={interest}
                       type="button"
-                      onClick={() =>
-                        toggleItem(
-                          interest,
-                          selectedInterests,
-                          setSelectedInterests,
-                        )
-                      }
+                      onClick={() => toggleItem(interest, "interests")}
                       className={`rounded-full border px-5 py-2.5 text-sm font-medium transition ${
                         selected
                           ? "border-gray-900 bg-gray-900 text-white"
@@ -204,10 +285,24 @@ export default function TripForm() {
 
             <button
               type="button"
-              className="mt-2 w-full rounded-2xl bg-gray-900 px-6 py-4 text-base font-semibold text-white transition hover:bg-gray-700"
+              onClick={handleSubmit}
+              disabled={loading}
+              className="mt-2 w-full rounded-2xl bg-gray-900 px-6 py-4 text-base font-semibold text-white transition hover:bg-gray-700 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              Build My Journey →
+              {loading ? "Building your journey..." : "Build My Journey →"}
             </button>
+
+            {message && (
+              <div className="rounded-2xl border border-green-200 bg-green-50 px-5 py-4 text-sm font-medium text-green-800">
+                {message}
+              </div>
+            )}
+
+            {error && (
+              <div className="rounded-2xl border border-red-200 bg-red-50 px-5 py-4 text-sm font-medium text-red-800">
+                {error}
+              </div>
+            )}
           </div>
         </div>
       </div>
