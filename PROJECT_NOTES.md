@@ -46,21 +46,6 @@ Initialize the Voyara repository and establish a clean development environment f
 
 ### Backend Environment
 
-Python virtual environment:
-
-```text
-backend/.venv/
-```
-
-Backend dependencies:
-
-```text
-fastapi
-uvicorn
-```
-
-### Initial Backend Structure
-
 ```text
 backend/
 ├── .venv/
@@ -68,26 +53,20 @@ backend/
 └── requirements.txt
 ```
 
-### Initial API
+### API
 
-Implemented and verified:
+Initial endpoints:
 
 ```text
 GET /
 GET /health
 ```
 
-### API Documentation
-
-FastAPI interactive documentation was enabled and verified through:
+FastAPI interactive documentation:
 
 ```text
-http://127.0.0.1:8000/docs
+/docs
 ```
-
-### Git
-
-The initial backend foundation was committed and pushed to GitHub.
 
 ---
 
@@ -110,17 +89,18 @@ Initialize the Voyara frontend using Next.js and establish a clean full-stack pr
 - Added Tailwind CSS.
 - Added Next.js App Router.
 - Added the `src/` directory structure.
-- Enabled Turbopack through the Next.js development environment.
+- Enabled Turbopack.
 - Kept React Compiler disabled.
 - Retained the default `@/*` import alias.
-- Verified successful frontend dependency installation.
-- Verified that npm reported no vulnerabilities.
-- Started the Next.js development server successfully.
+- Successfully installed frontend dependencies.
+- Verified that the frontend compiled successfully.
+- Started the Next.js development server.
 - Verified the frontend at `http://localhost:3000`.
 - Replaced the default Next.js starter page with the initial Voyara page.
 - Created `PROJECT_NOTES.md`.
 - Created `CHANGELOG.md`.
 - Established the project documentation workflow.
+- Established the practice of documenting development milestones, technical decisions, testing, and progress.
 
 ### Frontend Environment
 
@@ -135,7 +115,7 @@ Turbopack      Enabled
 React Compiler Disabled
 ```
 
-### Initial Frontend Structure
+### Frontend Structure
 
 ```text
 frontend/
@@ -154,62 +134,6 @@ frontend/
 └── postcss.config.mjs
 ```
 
-### Initial Frontend Page
-
-The default Next.js starter interface was removed and replaced with the initial Voyara page.
-
-### Documentation System
-
-Created:
-
-```text
-PROJECT_NOTES.md
-CHANGELOG.md
-```
-
-The project documentation workflow was established to maintain:
-
-- Development milestones
-- Technical decisions
-- Implementation details
-- Testing results
-- Architecture changes
-- Future development plans
-
-### Git Workflow
-
-The project follows this development workflow:
-
-```text
-BUILD
-  ↓
-TEST
-  ↓
-DOCUMENT
-  ↓
-git status
-  ↓
-git add
-  ↓
-git commit
-  ↓
-git push
-```
-
-### Testing
-
-Verified successfully:
-
-- Node.js installation.
-- npm installation.
-- Next.js project creation.
-- Frontend dependency installation.
-- Next.js development server.
-- Local frontend at `http://localhost:3000`.
-- Initial Voyara page rendering.
-- Git tracking of the frontend.
-- `.gitignore` correctly excluding generated files.
-
 ---
 
 ## Day 3 — August 13, 2026
@@ -224,18 +148,24 @@ Build the first real user-facing Voyara experience and establish the initial str
 
 - Created reusable `Hero` component.
 - Created `TripForm` component.
-- Replaced the minimal homepage with a composed landing page.
-- Added Voyara product messaging and feature cards.
+- Replaced the minimal homepage with the first Voyara landing page.
+- Added Voyara product messaging.
+- Added AI-powered travel intelligence branding.
 - Added `Start planning` navigation.
+- Added `Explore Voyara` interaction.
+- Added feature cards:
+  - Personalized
+  - Context-aware
+  - Intelligent
 - Added structured trip-planning form.
 - Added destination input.
-- Added start and end date inputs.
+- Added start date input.
+- Added end date input.
 - Added traveler count input.
 - Added budget input.
-- Added selectable travel styles.
-- Added selectable travel interests.
+- Added travel-style selection.
+- Added travel-interest selection.
 - Added interactive selection states.
-- Verified the complete landing-to-trip-intake flow locally.
 
 ### Frontend Components
 
@@ -285,13 +215,9 @@ Verified successfully:
 
 ### Milestone: Trip Request Schema and API
 
-### Objective
-
-Create a structured backend contract for trip requests and validate incoming travel preferences before processing them.
-
 ### Completed
 
-- Created the `backend/schemas/` directory.
+- Created `backend/schemas/` directory.
 - Created `backend/schemas/trip.py`.
 - Added the `TripRequest` Pydantic model.
 - Added destination validation.
@@ -317,21 +243,13 @@ backend/
 └── requirements.txt
 ```
 
-### Trip Request Model
-
-The backend now expects structured trip data containing:
+### API
 
 ```text
-destination
-start_date
-end_date
-travelers
-budget
-travel_style
-interests
+POST /api/trips
 ```
 
-### Example Request
+### Trip Request Structure
 
 ```json
 {
@@ -350,14 +268,6 @@ interests
 }
 ```
 
-### API
-
-Added:
-
-```text
-POST /api/trips
-```
-
 ### Validation Testing
 
 Verified successfully:
@@ -366,49 +276,26 @@ Verified successfully:
 - Invalid end-date ordering is rejected.
 - Invalid traveler count is rejected.
 - FastAPI returns `422 Unprocessable Entity` for invalid requests.
-- Swagger successfully exposes the new endpoint.
-- Backend validation works independently of the frontend.
 
 ---
 
 ### Milestone: Frontend-Backend Integration
 
-### Objective
-
-Connect the Voyara trip-planning interface to the FastAPI backend and establish the first working full-stack data flow.
-
 ### Completed
 
 - Connected `TripForm` to the FastAPI backend.
-- Added controlled form state for all trip inputs.
-- Added frontend submission handling.
-- Added loading state during API requests.
-- Added success feedback after a successful request.
-- Added frontend error handling.
+- Added controlled state management for the trip form.
+- Added frontend API request handling.
 - Added JSON request payload.
-- Added `POST /api/trips` integration.
+- Added loading state.
+- Added success feedback.
+- Added frontend error handling.
+- Added `fetch()` integration with the backend.
 - Added FastAPI CORS configuration.
-- Verified frontend-to-backend communication locally.
-- Verified Pydantic validation through the API.
-- Verified successful trip submission.
+- Connected the Next.js frontend to `POST /api/trips`.
+- Verified frontend-backend communication locally.
 
-### Frontend Submission Flow
-
-The `TripForm` now converts the user's inputs into structured JSON and sends them to the backend.
-
-```text
-User Input
-    ↓
-TripForm State
-    ↓
-JSON Payload
-    ↓
-POST /api/trips
-    ↓
-FastAPI
-```
-
-### Complete Data Flow
+### Data Flow
 
 ```text
 TripForm
@@ -430,7 +317,7 @@ API Response
 Frontend
 ```
 
-### CORS Configuration
+### CORS
 
 Configured local development origins:
 
@@ -438,8 +325,6 @@ Configured local development origins:
 http://localhost:3000
 http://127.0.0.1:3000
 ```
-
-This allows the Next.js frontend to communicate with the FastAPI backend during local development.
 
 ### Testing
 
@@ -456,107 +341,338 @@ Verified successfully:
 - Frontend-backend communication works locally.
 - CORS configuration works correctly.
 
-### Current Full-Stack Architecture
+---
+
+## Day 4 — August 14, 2026
+
+### Milestone: PostgreSQL Database and Persistent Trip Storage
+
+### Objective
+
+Introduce PostgreSQL persistence to Voyara and connect the FastAPI backend with the database so submitted trips can be stored and retrieved.
+
+### Completed
+
+- Installed PostgreSQL 18.6 on Windows.
+- Verified PostgreSQL installation.
+- Created the `voyara` PostgreSQL database.
+- Verified successful connection to the `voyara` database.
+- Installed SQLAlchemy.
+- Installed Psycopg.
+- Installed `python-dotenv`.
+- Updated `backend/requirements.txt`.
+- Created the `backend/database/` directory.
+- Created `backend/database/database.py`.
+- Created `backend/database/models.py`.
+- Created `backend/.env`.
+- Configured the PostgreSQL connection using `DATABASE_URL`.
+- Protected `.env` through `.gitignore`.
+- Created the SQLAlchemy database engine.
+- Created the SQLAlchemy session factory.
+- Created the SQLAlchemy declarative base.
+- Created the database session dependency.
+- Created the `Trip` SQLAlchemy model.
+- Created the PostgreSQL `trips` table.
+- Created `backend/init_db.py`.
+- Verified Python-to-PostgreSQL connectivity.
+- Connected the FastAPI backend to PostgreSQL.
+- Updated `POST /api/trips` to persist trips in PostgreSQL.
+- Added PostgreSQL-generated trip IDs.
+- Added `GET /api/trips` for retrieving saved trips.
+- Verified saved trips directly through PostgreSQL.
+- Connected the actual Next.js frontend to the PostgreSQL-backed API.
+- Detected and fixed a CORS issue during frontend-backend integration.
+- Verified complete end-to-end trip submission and persistence.
+
+### Database Environment
 
 ```text
-                    VOYARA
-                       │
-             ┌─────────┴─────────┐
-             │                   │
-          Next.js              FastAPI
-          Frontend              Backend
-             │                   │
-         TripForm          TripRequest Schema
-             │                   │
-             └────── HTTP API ───┘
-                       │
-                       ▼
-                Structured Data
+PostgreSQL    18.6
+Database      voyara
+User          postgres
+Port          5432
 ```
 
-### Current Status
+### Python Database Stack
 
-Voyara has now moved from a frontend prototype to a working full-stack application.
+```text
+SQLAlchemy
+psycopg
+psycopg-binary
+python-dotenv
+```
 
-The current system can:
+### Database Structure
 
-1. Collect structured travel preferences from the user.
-2. Send those preferences to the backend.
-3. Validate the request using Pydantic.
-4. Process the request through FastAPI.
-5. Return a structured response to the frontend.
-6. Display the successful result to the user.
+```text
+backend/
+├── database/
+│   ├── database.py
+│   └── models.py
+├── schemas/
+│   └── trip.py
+├── .env
+├── init_db.py
+├── main.py
+└── requirements.txt
+```
 
-### Current Limitation
+### Trip Database Model
 
-Trip data is currently processed in memory and returned through the API response.
+The `Trip` model stores:
 
-No persistent database storage has been implemented yet.
+```text
+id
+destination
+start_date
+end_date
+travelers
+budget
+travel_style
+interests
+```
+
+### Database Connection Flow
+
+```text
+.env
+   ↓
+python-dotenv
+   ↓
+SQLAlchemy
+   ↓
+Psycopg
+   ↓
+PostgreSQL 18.6
+   ↓
+voyara
+```
+
+### Trip Persistence Flow
+
+```text
+TripForm
+   ↓
+POST /api/trips
+   ↓
+FastAPI
+   ↓
+TripRequest
+   ↓
+Pydantic Validation
+   ↓
+SQLAlchemy Trip Model
+   ↓
+PostgreSQL
+   ↓
+Saved Trip
+   ↓
+Database-generated ID
+   ↓
+API Response
+```
+
+### Trip Retrieval Flow
+
+```text
+GET /api/trips
+   ↓
+FastAPI
+   ↓
+SQLAlchemy
+   ↓
+PostgreSQL
+   ↓
+Saved Trips
+   ↓
+JSON Response
+```
+
+### Frontend-Backend Integration
+
+The complete real-world flow was verified:
+
+```text
+Voyara Frontend
+       ↓
+Next.js TripForm
+       ↓
+POST /api/trips
+       ↓
+FastAPI
+       ↓
+Pydantic Validation
+       ↓
+SQLAlchemy
+       ↓
+PostgreSQL
+       ↓
+Persistent Trip
+       ↓
+Success Response
+       ↓
+Voyara Frontend
+```
+
+### CORS Fix
+
+During frontend testing, the request initially returned:
+
+```text
+Failed to fetch
+```
+
+The issue was identified as missing CORS configuration after the database integration update.
+
+Configured local development origins:
+
+```text
+http://localhost:3000
+http://127.0.0.1:3000
+```
+
+After restoring CORS configuration, frontend submission worked successfully.
+
+### Testing
+
+Verified successfully:
+
+- PostgreSQL installation works.
+- `voyara` database exists.
+- Python connects successfully to PostgreSQL.
+- SQLAlchemy connects successfully to PostgreSQL.
+- `trips` table was created successfully.
+- Valid trip data is accepted.
+- `POST /api/trips` creates and persists trips.
+- PostgreSQL generates the trip ID.
+- Saved trips can be verified directly in PostgreSQL.
+- `GET /api/trips` retrieves saved trips.
+- Next.js successfully communicates with FastAPI.
+- CORS configuration works correctly.
+- A trip submitted through the actual Voyara frontend is persisted in PostgreSQL.
+- End-to-end frontend → FastAPI → PostgreSQL flow works successfully.
+
+### Day 4 Architecture
+
+```text
+                         VOYARA
+                            │
+                            ▼
+                    Next.js Frontend
+                            │
+                         TripForm
+                            │
+                            ▼
+                    FastAPI Backend
+                            │
+                    Pydantic Validation
+                            │
+                            ▼
+                       SQLAlchemy
+                            │
+                            ▼
+                     PostgreSQL 18.6
+                            │
+                            ▼
+                       Saved Trips
+                            │
+                            ▼
+                     GET /api/trips
+```
+
+### Day 4 Status
+
+```text
+PostgreSQL installation       ✅
+voyara database               ✅
+Database connection           ✅
+SQLAlchemy setup              ✅
+Psycopg setup                 ✅
+.env configuration            ✅
+Trip database model           ✅
+trips table                   ✅
+POST /api/trips persistence   ✅
+GET /api/trips retrieval      ✅
+Frontend integration          ✅
+CORS configuration            ✅
+End-to-end testing            ✅
+```
+
+---
+
+# Current Project Structure
+
+```text
+Voyara-AI-Travel-Planner/
+│
+├── backend/
+│   ├── .venv/
+│   ├── database/
+│   │   ├── database.py
+│   │   └── models.py
+│   ├── schemas/
+│   │   └── trip.py
+│   ├── .env
+│   ├── init_db.py
+│   ├── main.py
+│   └── requirements.txt
+│
+├── frontend/
+│   ├── public/
+│   ├── src/
+│   │   ├── app/
+│   │   │   └── page.tsx
+│   │   └── components/
+│   │       ├── landing/
+│   │       │   └── Hero.tsx
+│   │       └── trip-planner/
+│   │           └── TripForm.tsx
+│   ├── package.json
+│   ├── package-lock.json
+│   ├── tsconfig.json
+│   ├── next.config.ts
+│   ├── eslint.config.mjs
+│   └── postcss.config.mjs
+│
+├── .gitignore
+├── CHANGELOG.md
+└── PROJECT_NOTES.md
+```
 
 ---
 
 # Upcoming Development
 
-The next major development milestone is PostgreSQL integration.
-
-Planned progression:
-
 ```text
-PostgreSQL
-    ↓
-Database Configuration
-    ↓
-SQLAlchemy / Database Layer
-    ↓
-Trip Database Model
-    ↓
-Trip Persistence
-    ↓
-Retrieve Saved Trips
-    ↓
-Travel Data Ingestion
-    ↓
-ETL / ELT Pipeline
-    ↓
-Travel Knowledge Base
-    ↓
+Travel data ingestion
+        ↓
+External travel data layer
+        ↓
+ETL / ELT pipeline
+        ↓
+Travel knowledge base
+        ↓
 Embeddings
-    ↓
-Vector Search
-    ↓
-RAG Pipeline
-    ↓
-Gemini Integration
-    ↓
-AI Travel Planner
-    ↓
-Agentic Itinerary Generation
-    ↓
-Itinerary Validation
-    ↓
+        ↓
+Vector search
+        ↓
+RAG pipeline
+        ↓
+Gemini integration
+        ↓
+AI travel planner
+        ↓
+Constraint-aware itinerary generation
+        ↓
+Agentic itinerary workflow
+        ↓
+Itinerary validation
+        ↓
 Authentication
-    ↓
-Production Deployment
+        ↓
+Production deployment
+        ↓
+Final testing
+        ↓
+Portfolio polish
 ```
-
----
-
-# Project Documentation Principle
-
-Voyara development is documented chronologically.
-
-Each development day records:
-
-- Objective
-- Completed work
-- Technical decisions
-- Project structure
-- API changes
-- Testing
-- Current status
-- Limitations
-- Upcoming work
-
-`PROJECT_NOTES.md` contains detailed technical development notes.
-
-`CHANGELOG.md` contains the concise chronological history of project changes.

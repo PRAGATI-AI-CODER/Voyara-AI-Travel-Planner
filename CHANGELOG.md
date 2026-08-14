@@ -61,7 +61,7 @@ Interactive API documentation:
 
 ## Day 2 — August 12, 2026
 
-### Milestone: Frontend Foundation
+### Milestone: Frontend Foundation and Project Documentation
 
 ### Added
 
@@ -83,6 +83,10 @@ Interactive API documentation:
 - Verified the frontend at:
   `http://localhost:3000`
 - Replaced the default Next.js starter page with the initial Voyara page.
+- Created `PROJECT_NOTES.md`.
+- Created `CHANGELOG.md`.
+- Established the project documentation workflow.
+- Established the practice of documenting development milestones, technical decisions, testing, and progress.
 
 ### Frontend
 
@@ -117,27 +121,6 @@ Turbopack      Enabled
 React Compiler Disabled
 ```
 
-### Documentation
-
-- Created `PROJECT_NOTES.md`.
-- Created `CHANGELOG.md`.
-- Established the project documentation workflow.
-- Established the practice of documenting development milestones, technical decisions, testing, and progress.
-
-### Testing
-
-Verified successfully:
-
-- Node.js installation.
-- npm installation.
-- Next.js project creation.
-- Frontend dependency installation.
-- Next.js development server.
-- Local frontend at `http://localhost:3000`.
-- Initial Voyara page rendering.
-- Git tracking of the frontend.
-- `.gitignore` correctly excluding generated files such as `node_modules/` and `.next/`.
-
 ---
 
 ## Day 3 — August 13, 2026
@@ -151,8 +134,8 @@ Verified successfully:
 - Replaced the minimal homepage with the first Voyara landing page.
 - Added Voyara product messaging.
 - Added AI-powered travel intelligence branding.
-- Added the Start planning button.
-- Added the Explore Voyara button.
+- Added the `Start planning` button.
+- Added the `Explore Voyara` interaction.
 - Added feature cards:
   - Personalized
   - Context-aware
@@ -345,60 +328,256 @@ Verified successfully:
 - Frontend-backend communication works locally.
 - CORS configuration works correctly.
 
-### Current Status
+---
 
-Voyara now has its first complete full-stack request flow:
+## Day 4 — August 14, 2026
+
+### Milestone: PostgreSQL Database and Persistent Trip Storage
+
+### Added
+
+- Installed PostgreSQL 18.6 on Windows.
+- Verified PostgreSQL installation.
+- Created the `voyara` PostgreSQL database.
+- Verified successful connection to the `voyara` database.
+- Installed SQLAlchemy.
+- Installed Psycopg.
+- Installed `python-dotenv`.
+- Updated `backend/requirements.txt`.
+- Created the `backend/database/` directory.
+- Created `backend/database/database.py`.
+- Created `backend/database/models.py`.
+- Created `backend/.env`.
+- Configured the PostgreSQL connection using `DATABASE_URL`.
+- Protected `.env` through `.gitignore`.
+- Created the SQLAlchemy database engine.
+- Created the SQLAlchemy session factory.
+- Created the SQLAlchemy declarative base.
+- Created the database session dependency.
+- Created the `Trip` SQLAlchemy model.
+- Created the PostgreSQL `trips` table.
+- Created `backend/init_db.py`.
+- Verified Python-to-PostgreSQL connectivity.
+- Connected the FastAPI backend to PostgreSQL.
+- Updated `POST /api/trips` to persist trips in PostgreSQL.
+- Added PostgreSQL-generated trip IDs.
+- Added `GET /api/trips` for retrieving saved trips.
+- Verified saved trips directly through PostgreSQL.
+- Connected the actual Next.js frontend to the PostgreSQL-backed API.
+- Detected and fixed a CORS issue during frontend-backend integration.
+- Verified complete end-to-end trip submission and persistence.
+
+### Database Environment
 
 ```text
-Next.js Frontend
+PostgreSQL    18.6
+Database      voyara
+User          postgres
+Port          5432
+```
+
+### Python Database Stack
+
+```text
+SQLAlchemy
+psycopg
+psycopg-binary
+python-dotenv
+```
+
+### Database Structure
+
+```text
+backend/
+├── database/
+│   ├── database.py
+│   └── models.py
+├── schemas/
+│   └── trip.py
+├── .env
+├── init_db.py
+├── main.py
+└── requirements.txt
+```
+
+### Trip Model
+
+The `Trip` SQLAlchemy model stores:
+
+```text
+id
+destination
+start_date
+end_date
+travelers
+budget
+travel_style
+interests
+```
+
+### Database Connection Flow
+
+```text
+.env
+   ↓
+python-dotenv
+   ↓
+SQLAlchemy
+   ↓
+Psycopg
+   ↓
+PostgreSQL 18.6
+   ↓
+voyara
+```
+
+### Trip Persistence Flow
+
+```text
+TripForm
+   ↓
+POST /api/trips
+   ↓
+FastAPI
+   ↓
+TripRequest
+   ↓
+Pydantic Validation
+   ↓
+SQLAlchemy Trip Model
+   ↓
+PostgreSQL
+   ↓
+Saved Trip
+   ↓
+Database-generated ID
+   ↓
+API Response
+```
+
+### Trip Retrieval Flow
+
+```text
+GET /api/trips
+   ↓
+FastAPI
+   ↓
+SQLAlchemy
+   ↓
+PostgreSQL
+   ↓
+Saved Trips
+   ↓
+JSON Response
+```
+
+### Frontend-Backend Integration
+
+Verified the complete real-world flow:
+
+```text
+Voyara Frontend
        ↓
-    TripForm
+Next.js TripForm
        ↓
-  FastAPI Backend
+POST /api/trips
+       ↓
+FastAPI
        ↓
 Pydantic Validation
        ↓
- Structured Trip Data
+SQLAlchemy
        ↓
-    API Response
+PostgreSQL
        ↓
-    Frontend
+Persistent Trip
+       ↓
+Success Response
+       ↓
+Voyara Frontend
 ```
 
----
+### CORS Fix
 
-## Upcoming Development
-
-The next planned milestones are:
+During frontend testing, the request initially returned:
 
 ```text
-PostgreSQL integration
-        ↓
-Trip persistence
-        ↓
-Database models
-        ↓
-Travel data ingestion
-        ↓
-ETL / ELT pipeline
-        ↓
-Travel knowledge base
-        ↓
-Embeddings
-        ↓
-Vector search
-        ↓
-RAG pipeline
-        ↓
-Gemini integration
-        ↓
-AI travel planner
-        ↓
-Agentic itinerary generation
-        ↓
-Itinerary validation
-        ↓
-Authentication
-        ↓
-Production deployment
+Failed to fetch
+```
+
+The issue was identified as missing CORS configuration after the database integration update.
+
+Configured local development origins:
+
+```text
+http://localhost:3000
+http://127.0.0.1:3000
+```
+
+After restoring CORS configuration, frontend submission worked successfully.
+
+### Testing
+
+Verified successfully:
+
+- PostgreSQL installation works.
+- `voyara` database exists.
+- Python connects successfully to PostgreSQL.
+- SQLAlchemy connects successfully to PostgreSQL.
+- `trips` table was created successfully.
+- Valid trip data is accepted.
+- `POST /api/trips` creates and persists trips.
+- PostgreSQL generates the trip ID.
+- Saved trips can be verified directly in PostgreSQL.
+- `GET /api/trips` retrieves saved trips.
+- Next.js successfully communicates with FastAPI.
+- CORS configuration works correctly.
+- A trip submitted through the actual Voyara frontend is persisted in PostgreSQL.
+- End-to-end frontend → FastAPI → PostgreSQL flow works successfully.
+
+### Day 4 Architecture
+
+```text
+                         VOYARA
+                            │
+                            ▼
+                    Next.js Frontend
+                            │
+                         TripForm
+                            │
+                            ▼
+                    FastAPI Backend
+                            │
+                    Pydantic Validation
+                            │
+                            ▼
+                       SQLAlchemy
+                            │
+                            ▼
+                     PostgreSQL 18.6
+                            │
+                            ▼
+                       Saved Trips
+                            │
+                            ▼
+                     GET /api/trips
+```
+
+### Day 4 Status
+
+```text
+PostgreSQL installation       ✅
+voyara database               ✅
+Database connection           ✅
+SQLAlchemy setup              ✅
+Psycopg setup                 ✅
+.env configuration            ✅
+Trip database model           ✅
+trips table                   ✅
+POST /api/trips persistence   ✅
+GET /api/trips retrieval      ✅
+Frontend integration          ✅
+CORS configuration            ✅
+End-to-end testing            ✅
+```
 ```
