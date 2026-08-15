@@ -630,3 +630,54 @@ PostgreSQL persistence          ✅
 CRUD testing                    ✅
 End-to-end testing              ✅
 ```
+
+---
+
+## Day 6 — August 15, 2026
+
+### Milestone: Itinerary Planning Foundation
+
+### Added
+
+- Created the `backend/services/` directory.
+- Created `backend/services/trip_service.py`.
+- Moved trip database operations from `main.py` into a dedicated service layer.
+- Added trip creation, retrieval, and deletion service functions.
+- Created `backend/services/planning_service.py`.
+- Added the first deterministic itinerary planning engine.
+- Added `GET /api/trips/{trip_id}/itinerary`.
+- Added structured itinerary response schemas.
+- Added the `ItineraryDay` Pydantic schema.
+- Added the `ItineraryMetadata` Pydantic schema.
+- Added the `ItineraryResponse` Pydantic schema.
+- Added preference-based itinerary generation.
+- Added travel-style-aware planning.
+- Added interest-aware planning.
+- Added budget-aware planning.
+- Added day-aware itinerary generation.
+- Added first-day arrival and orientation logic.
+- Added last-day final-trip logic.
+- Added itinerary metadata including:
+  - Trip duration
+  - Number of travelers
+  - Budget
+  - Travel style
+  - Interests
+  - Planning type
+
+### Backend Architecture
+
+The backend now separates API routing from business logic:
+
+```text
+FastAPI Routes
+      │
+      ├──────────────► Trip Service
+      │                     │
+      │                     ▼
+      │                 PostgreSQL
+      │
+      └──────────────► Planning Service
+                            │
+                            ▼
+                       Itinerary

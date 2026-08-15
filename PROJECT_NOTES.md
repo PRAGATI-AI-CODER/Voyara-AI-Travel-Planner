@@ -871,3 +871,294 @@ PostgreSQL persistence        ✅
 CRUD testing                  ✅
 End-to-end testing            ✅
 ```
+
+
+---
+
+## Day 6 — August 15, 2026
+
+### Milestone: Itinerary Planning Foundation
+
+### Objective
+
+Build a clean planning layer on top of Voyara's PostgreSQL-backed trip system and introduce the first deterministic itinerary generation engine as the foundation for future AI-powered planning.
+
+### Completed
+
+- Created the `backend/services/` directory.
+- Created `backend/services/trip_service.py`.
+- Moved trip database operations out of `main.py` into the trip service layer.
+- Added a dedicated trip creation service.
+- Added a service for retrieving all trips.
+- Added a service for retrieving an individual trip.
+- Added a service for deleting trips.
+- Created `backend/services/planning_service.py`.
+- Added the first deterministic itinerary generation engine.
+- Added `GET /api/trips/{trip_id}/itinerary`.
+- Connected the itinerary endpoint to saved PostgreSQL trips.
+- Added structured Pydantic itinerary response schemas.
+- Created the `ItineraryDay` schema.
+- Created the `ItineraryMetadata` schema.
+- Created the `ItineraryResponse` schema.
+- Added preference-based itinerary generation.
+- Added travel-style-aware planning.
+- Added interest-aware planning.
+- Added budget-aware planning.
+- Added day-aware itinerary generation.
+- Added first-day arrival and orientation logic.
+- Added last-day departure/final-day logic.
+- Added different planning behavior across itinerary days.
+- Added itinerary metadata containing trip duration, travelers, budget, travel style, interests, and planning type.
+- Verified itinerary generation for the Paris trip.
+- Verified itinerary generation for the Japan trip.
+- Verified that different trip destinations and preferences are used dynamically.
+- Verified the complete PostgreSQL → FastAPI → Planning Service → Itinerary flow.
+- Committed and pushed the Day 6 implementation to GitHub.
+
+### Backend Structure
+
+```text
+backend/
+├── database/
+│   ├── database.py
+│   └── models.py
+├── schemas/
+│   └── trip.py
+├── services/
+│   ├── planning_service.py
+│   └── trip_service.py
+├── init_db.py
+├── main.py
+└── requirements.txt
+```
+
+### Service Layer
+
+The backend now separates API routing from business logic:
+
+```text
+FastAPI Routes
+      │
+      ├──────────────► Trip Service
+      │                     │
+      │                     ▼
+      │                 PostgreSQL
+      │
+      └──────────────► Planning Service
+                            │
+                            ▼
+                       Itinerary
+```
+
+### Trip Service
+
+`trip_service.py` handles:
+
+```text
+create_trip()
+get_all_trips()
+get_trip_by_id()
+delete_trip()
+```
+
+This keeps database operations out of the FastAPI route definitions.
+
+### Planning Service
+
+`planning_service.py` handles deterministic itinerary generation using:
+
+```text
+Destination
+Travel Style
+Interests
+Budget
+Start Date
+End Date
+Trip Duration
+```
+
+### Itinerary API
+
+Added:
+
+```text
+GET /api/trips/{trip_id}/itinerary
+```
+
+### Itinerary Generation Flow
+
+```text
+Trip ID
+   ↓
+PostgreSQL
+   ↓
+Saved Trip
+   ↓
+Trip Service
+   ↓
+Planning Service
+   ↓
+Trip Preferences
+   ↓
+Day-aware Planning Logic
+   ↓
+Structured Itinerary
+   ↓
+API Response
+```
+
+### Itinerary Response Structure
+
+```text
+ItineraryResponse
+├── message
+├── trip_id
+├── destination
+├── start_date
+├── end_date
+├── metadata
+│   ├── duration_days
+│   ├── travelers
+│   ├── budget
+│   ├── travel_style
+│   ├── interests
+│   └── planning_type
+└── itinerary
+    └── ItineraryDay[]
+        ├── day
+        ├── date
+        ├── destination
+        ├── morning
+        ├── afternoon
+        └── evening
+```
+
+### Planning Logic
+
+The deterministic planner now considers traveler preferences.
+
+For example:
+
+```text
+Food
+   ↓
+Food-focused experiences
+
+Culture
+   ↓
+Cultural landmarks and heritage experiences
+
+History
+   ↓
+Historical landmarks
+
+Nature
+   ↓
+Nature and scenic experiences
+
+Adventure
+   ↓
+Adventure-focused experiences
+
+Relaxed
+   ↓
+Relaxed activities and pacing
+
+Higher Budget
+   ↓
+Premium experience option
+```
+
+### Day-Aware Planning
+
+The planner differentiates between different days of the trip:
+
+```text
+Day 1
+→ Arrival and orientation
+
+Middle Days
+→ Attractions
+→ Culture
+→ Food
+→ Other preference-based activities
+
+Final Day
+→ Relaxed final morning
+→ Shopping / souvenirs / free time
+→ Final evening
+```
+
+### Testing
+
+Verified successfully:
+
+- FastAPI server starts successfully.
+- Swagger documentation loads successfully.
+- Existing CRUD endpoints continue to work.
+- `GET /api/trips/{trip_id}/itinerary` appears in Swagger.
+- Paris Trip ID 1 generated a 7-day itinerary.
+- Japan Trip ID 3 generated an 11-day itinerary.
+- Destination data is retrieved dynamically from PostgreSQL.
+- Travel preferences influence itinerary generation.
+- Different trip durations generate different numbers of itinerary days.
+- First-day planning differs from middle-day planning.
+- Final-day planning differs from middle-day planning.
+- Itinerary metadata is returned successfully.
+- Structured Pydantic itinerary schemas validate successfully.
+- PostgreSQL → FastAPI → Planning Service → API response flow works successfully.
+
+### Current Planning Type
+
+```text
+planning_type: deterministic
+```
+
+The deterministic planner serves as the baseline for the future intelligent planning system.
+
+### Day 6 Architecture
+
+```text
+                         VOYARA
+                            │
+                            ▼
+                    Next.js Frontend
+                            │
+                            ▼
+                    FastAPI REST API
+                            │
+              ┌─────────────┴─────────────┐
+              ▼                           ▼
+        Trip Service               Planning Service
+              │                           │
+              ▼                           ▼
+        PostgreSQL                 Planning Logic
+                                          │
+                                          ▼
+                                  Structured Itinerary
+                                          │
+                                          ▼
+                                  Pydantic Response
+                                          │
+                                          ▼
+                                   Next.js Frontend
+```
+
+### Day 6 Status
+
+```text
+Service layer                  ✅
+Trip service                   ✅
+Planning service               ✅
+Itinerary API                  ✅
+Pydantic itinerary schemas     ✅
+Preference-based planning     ✅
+Budget-aware planning          ✅
+Day-aware planning             ✅
+Multi-trip testing             ✅
+Planning metadata              ✅
+PostgreSQL integration         ✅
+End-to-end testing             ✅
+Git commit                     ✅
+GitHub push                    ✅
+```
