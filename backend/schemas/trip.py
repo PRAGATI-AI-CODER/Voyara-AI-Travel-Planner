@@ -79,3 +79,31 @@ class TripListResponse(BaseModel):
 class TripCreateResponse(BaseModel):
     message: str
     trip: TripResponse
+
+
+class ItineraryDay(BaseModel):
+    day: int
+    date: date
+    destination: str
+    morning: str
+    afternoon: str
+    evening: str
+
+
+class ItineraryMetadata(BaseModel):
+    duration_days: int
+    travelers: int
+    budget: float
+    travel_style: str
+    interests: list[str]
+    planning_type: str
+
+
+class ItineraryResponse(BaseModel):
+    message: str
+    trip_id: int
+    destination: str
+    start_date: date
+    end_date: date
+    metadata: ItineraryMetadata
+    itinerary: list[ItineraryDay]

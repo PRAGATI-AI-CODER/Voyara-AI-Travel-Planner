@@ -3,12 +3,19 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 
 from database.database import Base, engine, get_db
-from database.models import Trip
 from schemas.trip import (
+    ItineraryResponse,
     TripCreateResponse,
     TripListResponse,
     TripRequest,
     TripResponse,
+)
+from services.planning_service import generate_itinerary
+from services.trip_service import (
+    create_trip,
+    delete_trip,
+    get_all_trips,
+    get_trip_by_id,
 )
 
 
@@ -49,23 +56,11 @@ def health_check():
 
 
 @app.post("/api/trips", response_model=TripCreateResponse)
-def create_trip(
+def create_trip_endpoint(
     trip: TripRequest,
     db: Session = Depends(get_db),
 ):
-    new_trip = Trip(
-        destination=trip.destination,
-        start_date=trip.start_date,
-        end_date=trip.end_date,
-        travelers=trip.travelers,
-        budget=trip.budget,
-        travel_style=", ".join(trip.travel_style),
-        interests=", ".join(trip.interests),
-    )
-
-    db.add(new_trip)
-    db.commit()
-    db.refresh(new_trip)
+    new_trip = create_trip(db, trip)
 
     return {
         "message": "Trip created successfully",
@@ -77,7 +72,7 @@ def create_trip(
 def get_trips(
     db: Session = Depends(get_db),
 ):
-    trips = db.query(Trip).order_by(Trip.id.desc()).all()
+    trips = get_all_trips(db)
 
     return {
         "count": len(trips),
@@ -90,7 +85,7 @@ def get_trip(
     trip_id: int,
     db: Session = Depends(get_db),
 ):
-    trip = db.query(Trip).filter(Trip.id == trip_id).first()
+    trip = get_trip_by_id(db, trip_id)
 
     if trip is None:
         raise HTTPException(
@@ -102,11 +97,11 @@ def get_trip(
 
 
 @app.delete("/api/trips/{trip_id}")
-def delete_trip(
+def delete_trip_endpoint(
     trip_id: int,
     db: Session = Depends(get_db),
 ):
-    trip = db.query(Trip).filter(Trip.id == trip_id).first()
+    trip = get_trip_by_id(db, trip_id)
 
     if trip is None:
         raise HTTPException(
@@ -114,10 +109,53 @@ def delete_trip(
             detail="Trip not found",
         )
 
-    db.delete(trip)
-    db.commit()
+    delete_trip(db, trip)
 
     return {
         "message": "Trip deleted successfully",
         "trip_id": trip_id,
+    }
+
+
+@app.get(
+    "/api/trips/{trip_id}/itinerary",
+    response_model=ItineraryResponse,
+)
+def get_trip_itinerary(
+    trip_id: int,
+    db: Session = Depends(get_db),
+):
+    trip = get_trip_by_id(db, trip_id)
+
+    if trip is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Trip not found",
+        )
+
+    itinerary = generate_itinerary(trip)
+
+    duration_days = (trip.end_date - trip.start_date).days + 1
+
+    interests = [
+        interest.strip()
+        for interest in trip.interests.split(",")
+        if interest.strip()
+    ]
+
+    return {
+        "message": "Itinerary generated successfully",
+        "trip_id": trip.id,
+        "destination": trip.destination,
+        "start_date": trip.start_date,
+        "end_date": trip.end_date,
+        "metadata": {
+            "duration_days": duration_days,
+            "travelers": trip.travelers,
+            "budget": trip.budget,
+            "travel_style": trip.travel_style,
+            "interests": interests,
+            "planning_type": "deterministic",
+        },
+        "itinerary": itinerary,
     }
