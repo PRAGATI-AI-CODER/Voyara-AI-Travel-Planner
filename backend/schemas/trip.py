@@ -58,3 +58,24 @@ class TripRequest(BaseModel):
             raise ValueError("End date cannot be before start date.")
 
         return value
+
+
+class TripResponse(BaseModel):
+    id: int
+    destination: str
+    start_date: date
+    end_date: date
+    travelers: int
+    budget: float
+    travel_style: str
+    interests: str
+
+
+class TripListResponse(BaseModel):
+    count: int
+    trips: list[TripResponse]
+
+
+class TripCreateResponse(BaseModel):
+    message: str
+    trip: TripResponse

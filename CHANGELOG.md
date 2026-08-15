@@ -581,3 +581,52 @@ CORS configuration            ✅
 End-to-end testing            ✅
 ```
 ```
+
+
+---
+
+## Day 5 — August 15, 2026
+
+### Added
+
+- Added structured Pydantic response schemas:
+  - `TripResponse`
+  - `TripListResponse`
+  - `TripCreateResponse`
+- Added `GET /api/trips/{trip_id}` to retrieve an individual trip.
+- Added `DELETE /api/trips/{trip_id}` to delete an individual trip.
+- Added `404 Not Found` handling for non-existent trips.
+- Updated `POST /api/trips` with a structured response model.
+- Updated `GET /api/trips` with a structured response model.
+
+### Backend
+
+- Improved the FastAPI trip API structure.
+- Completed core CRUD operations for persistent trips.
+- Continued using SQLAlchemy and PostgreSQL for trip persistence.
+
+### Testing
+
+- Verified FastAPI Swagger documentation.
+- Verified trip creation through the frontend.
+- Verified PostgreSQL persistence.
+- Verified retrieval of individual trips.
+- Verified deletion of trips.
+- Verified deleted trips return `404 Not Found`.
+- Verified existing trips remain unaffected after deletion.
+- Verified complete frontend → FastAPI → PostgreSQL integration.
+
+### Day 5 Status
+
+```text
+Structured response schemas     ✅
+Create trip                     ✅
+Read all trips                  ✅
+Read single trip                ✅
+Delete trip                     ✅
+404 error handling              ✅
+Frontend integration            ✅
+PostgreSQL persistence          ✅
+CRUD testing                    ✅
+End-to-end testing              ✅
+```

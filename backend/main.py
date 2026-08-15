@@ -1,10 +1,15 @@
-from fastapi import Depends, FastAPI
+from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 
 from database.database import Base, engine, get_db
 from database.models import Trip
-from schemas.trip import TripRequest
+from schemas.trip import (
+    TripCreateResponse,
+    TripListResponse,
+    TripRequest,
+    TripResponse,
+)
 
 
 Base.metadata.create_all(bind=engine)
@@ -43,7 +48,7 @@ def health_check():
     }
 
 
-@app.post("/api/trips")
+@app.post("/api/trips", response_model=TripCreateResponse)
 def create_trip(
     trip: TripRequest,
     db: Session = Depends(get_db),
@@ -64,20 +69,11 @@ def create_trip(
 
     return {
         "message": "Trip created successfully",
-        "trip": {
-            "id": new_trip.id,
-            "destination": new_trip.destination,
-            "start_date": new_trip.start_date,
-            "end_date": new_trip.end_date,
-            "travelers": new_trip.travelers,
-            "budget": new_trip.budget,
-            "travel_style": new_trip.travel_style,
-            "interests": new_trip.interests,
-        },
+        "trip": new_trip,
     }
 
 
-@app.get("/api/trips")
+@app.get("/api/trips", response_model=TripListResponse)
 def get_trips(
     db: Session = Depends(get_db),
 ):
@@ -85,17 +81,43 @@ def get_trips(
 
     return {
         "count": len(trips),
-        "trips": [
-            {
-                "id": trip.id,
-                "destination": trip.destination,
-                "start_date": trip.start_date,
-                "end_date": trip.end_date,
-                "travelers": trip.travelers,
-                "budget": trip.budget,
-                "travel_style": trip.travel_style,
-                "interests": trip.interests,
-            }
-            for trip in trips
-        ],
+        "trips": trips,
+    }
+
+
+@app.get("/api/trips/{trip_id}", response_model=TripResponse)
+def get_trip(
+    trip_id: int,
+    db: Session = Depends(get_db),
+):
+    trip = db.query(Trip).filter(Trip.id == trip_id).first()
+
+    if trip is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Trip not found",
+        )
+
+    return trip
+
+
+@app.delete("/api/trips/{trip_id}")
+def delete_trip(
+    trip_id: int,
+    db: Session = Depends(get_db),
+):
+    trip = db.query(Trip).filter(Trip.id == trip_id).first()
+
+    if trip is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Trip not found",
+        )
+
+    db.delete(trip)
+    db.commit()
+
+    return {
+        "message": "Trip deleted successfully",
+        "trip_id": trip_id,
     }

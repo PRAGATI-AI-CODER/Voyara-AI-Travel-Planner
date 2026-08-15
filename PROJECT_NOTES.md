@@ -676,3 +676,198 @@ Final testing
         ↓
 Portfolio polish
 ```
+
+
+---
+
+## Day 5 — August 15, 2026
+
+### Milestone: Complete Trip CRUD API
+
+### Objective
+
+Strengthen the Voyara backend by introducing structured API response schemas and completing the core CRUD operations for persistent trips stored in PostgreSQL.
+
+### Completed
+
+- Reviewed the existing PostgreSQL-backed trip API.
+- Added structured Pydantic response schemas.
+- Created the `TripResponse` schema.
+- Created the `TripListResponse` schema.
+- Created the `TripCreateResponse` schema.
+- Updated `POST /api/trips` to use a structured response model.
+- Updated `GET /api/trips` to use a structured response model.
+- Added `GET /api/trips/{trip_id}` for retrieving a specific trip.
+- Added proper `404 Not Found` handling when a requested trip does not exist.
+- Added `DELETE /api/trips/{trip_id}` for deleting a specific trip.
+- Added proper `404 Not Found` handling for deletion of non-existent trips.
+- Verified FastAPI Swagger documentation after the API changes.
+- Verified that the existing frontend continued to work after the backend API changes.
+- Verified successful trip creation through the frontend.
+- Verified successful trip persistence in PostgreSQL.
+- Tested retrieval of individual trips.
+- Tested deletion of an individual trip.
+- Verified that deleted trips can no longer be retrieved.
+- Verified that other existing trips remain unaffected after deletion.
+
+### API Endpoints
+
+```text
+POST   /api/trips
+GET    /api/trips
+GET    /api/trips/{trip_id}
+DELETE /api/trips/{trip_id}
+```
+
+### API Architecture
+
+```text
+POST /api/trips
+       ↓
+TripRequest
+       ↓
+Pydantic Validation
+       ↓
+SQLAlchemy
+       ↓
+PostgreSQL
+       ↓
+TripCreateResponse
+```
+
+```text
+GET /api/trips
+       ↓
+SQLAlchemy
+       ↓
+PostgreSQL
+       ↓
+TripListResponse
+```
+
+```text
+GET /api/trips/{trip_id}
+       ↓
+SQLAlchemy
+       ↓
+PostgreSQL
+       ↓
+TripResponse
+       ↓
+404 if trip does not exist
+```
+
+```text
+DELETE /api/trips/{trip_id}
+       ↓
+SQLAlchemy
+       ↓
+PostgreSQL
+       ↓
+Trip deleted
+       ↓
+Success response
+       ↓
+404 if trip does not exist
+```
+
+### Response Schemas
+
+Created the following Pydantic schemas:
+
+```text
+TripResponse
+TripListResponse
+TripCreateResponse
+```
+
+These provide structured and predictable API responses instead of relying only on manually constructed dictionaries.
+
+### CRUD Status
+
+```text
+CREATE   POST   /api/trips              ✅
+READ ALL GET    /api/trips              ✅
+READ ONE GET    /api/trips/{trip_id}    ✅
+DELETE   DELETE /api/trips/{trip_id}   ✅
+```
+
+### Testing
+
+Verified successfully:
+
+- FastAPI server starts successfully.
+- Swagger documentation loads successfully.
+- Structured response schemas are recognized by FastAPI.
+- `POST /api/trips` successfully creates trips.
+- Created trips are persisted in PostgreSQL.
+- `GET /api/trips` successfully retrieves all stored trips.
+- `GET /api/trips/{trip_id}` successfully retrieves an individual trip.
+- Non-existent trip IDs return `404 Not Found`.
+- `DELETE /api/trips/{trip_id}` successfully deletes a trip.
+- Deleted trip IDs return `404 Not Found` when requested again.
+- Existing trips remain unaffected after another trip is deleted.
+- Next.js frontend continues to communicate successfully with FastAPI.
+- Frontend trip submission continues to work after the API restructuring.
+
+### Verified Database State
+
+During CRUD testing:
+
+```text
+Trip ID 1 → Paris
+Trip ID 2 → Deleted
+Trip ID 3 → Japan
+```
+
+Verification confirmed:
+
+```text
+GET /api/trips/1 → Paris     ✅
+GET /api/trips/2 → 404       ✅
+GET /api/trips/3 → Japan     ✅
+```
+
+### Day 5 Architecture
+
+```text
+                         VOYARA
+                            │
+                            ▼
+                    Next.js Frontend
+                            │
+                            ▼
+                    FastAPI REST API
+                            │
+                  Pydantic Schemas
+                            │
+                            ▼
+                       SQLAlchemy
+                            │
+                            ▼
+                     PostgreSQL 18.6
+                            │
+                 ┌──────────┼──────────┐
+                 ▼          ▼          ▼
+              Create      Read      Delete
+                 │          │          │
+                 └──────────┼──────────┘
+                            ▼
+                     Persistent Trips
+```
+
+### Day 5 Status
+
+```text
+Response schemas              ✅
+POST /api/trips               ✅
+GET /api/trips                ✅
+GET /api/trips/{trip_id}      ✅
+DELETE /api/trips/{trip_id}   ✅
+404 error handling            ✅
+Swagger verification          ✅
+Frontend integration          ✅
+PostgreSQL persistence        ✅
+CRUD testing                  ✅
+End-to-end testing            ✅
+```
