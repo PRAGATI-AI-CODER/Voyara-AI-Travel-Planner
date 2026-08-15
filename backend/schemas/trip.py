@@ -90,6 +90,10 @@ class ItineraryDay(BaseModel):
     evening: str
 
 
+class AIItinerary(BaseModel):
+    itinerary: list[ItineraryDay]
+
+
 class ItineraryMetadata(BaseModel):
     duration_days: int
     travelers: int
