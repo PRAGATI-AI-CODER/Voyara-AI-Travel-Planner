@@ -681,3 +681,65 @@ FastAPI Routes
                             │
                             ▼
                        Itinerary
+
+
+---
+
+## Day 7 — August 16, 2026
+
+### Milestone: Gemini AI Itinerary Planning
+
+### Added
+
+- Installed the official `google-genai` Python SDK.
+- Added `google-genai` to `backend/requirements.txt`.
+- Configured the `GEMINI_API_KEY` environment variable.
+- Kept the Gemini API key protected through `.env`.
+- Created `backend/services/ai_service.py`.
+- Added Gemini API client initialization.
+- Added Gemini model configuration.
+- Added AI response generation.
+- Added structured AI response generation.
+- Added Pydantic validation for structured AI output.
+- Created `backend/services/prompt_service.py`.
+- Created `backend/services/ai_planning_service.py`.
+- Added a dedicated AI itinerary planning service.
+- Connected saved PostgreSQL trip data to Gemini.
+- Added `GET /api/trips/{trip_id}/ai-itinerary`.
+- Kept the deterministic itinerary endpoint available.
+- Added AI-specific itinerary generation.
+- Added structured itinerary generation using Pydantic schemas.
+- Added the `AIItinerary` schema.
+- Prevented Gemini from controlling database-owned trip metadata.
+- Added backend-controlled trip ID handling.
+- Added backend-controlled destination handling.
+- Added backend-controlled date handling.
+- Added backend-controlled itinerary metadata.
+- Added backend-controlled planning type.
+- Added retry handling for temporary Gemini `503` errors.
+- Added model fallback handling for temporary Gemini availability issues.
+
+### AI Architecture
+
+```text
+Saved Trip
+    ↓
+PostgreSQL
+    ↓
+Trip Service
+    ↓
+Prompt Service
+    ↓
+AI Planning Service
+    ↓
+Gemini API
+    ↓
+Structured JSON
+    ↓
+Pydantic Validation
+    ↓
+Backend-controlled Metadata
+    ↓
+ItineraryResponse
+
+

@@ -1162,3 +1162,65 @@ End-to-end testing             ✅
 Git commit                     ✅
 GitHub push                    ✅
 ```
+
+
+---
+
+## Day 7 — August 16, 2026
+
+### Milestone: Gemini AI Itinerary Planning
+
+### Objective
+
+Introduce the first real AI planning layer into Voyara by connecting the FastAPI backend with Google's Gemini API and generating personalized, structured itineraries from saved PostgreSQL trip data.
+
+### Completed
+
+- Installed the official `google-genai` Python SDK.
+- Added `google-genai` to `backend/requirements.txt`.
+- Created and configured the `GEMINI_API_KEY` environment variable.
+- Kept the Gemini API key protected through `.env`.
+- Created `backend/services/ai_service.py`.
+- Added Gemini client initialization.
+- Added Gemini model configuration.
+- Added Gemini AI response generation.
+- Added structured Gemini response generation.
+- Added Pydantic-based structured AI output validation.
+- Created `backend/services/prompt_service.py`.
+- Created `backend/services/ai_planning_service.py`.
+- Added a dedicated AI itinerary planning service.
+- Connected saved PostgreSQL trip data to the AI planning pipeline.
+- Added a dedicated AI itinerary endpoint.
+- Added `GET /api/trips/{trip_id}/ai-itinerary`.
+- Kept the existing deterministic itinerary endpoint intact.
+- Added AI-specific itinerary generation without replacing the deterministic planner.
+- Added structured itinerary generation using Pydantic schemas.
+- Added the `AIItinerary` schema.
+- Prevented the AI model from controlling database-owned trip metadata.
+- Added backend-controlled trip ID handling.
+- Added backend-controlled destination and date handling.
+- Added backend-controlled planning type.
+- Added backend-controlled itinerary metadata.
+- Added retry handling for temporary Gemini availability errors.
+- Added model fallback handling for temporary Gemini service failures.
+- Verified Gemini API connectivity successfully.
+- Verified AI itinerary generation using the saved Paris trip.
+- Verified a complete 7-day AI-generated Paris itinerary.
+- Verified that traveler preferences are passed to the AI planner.
+- Verified that food and culture interests influence generated activities.
+- Verified that relaxed travel style influences itinerary pacing.
+- Verified structured AI output through Pydantic validation.
+- Verified the AI itinerary endpoint through FastAPI Swagger.
+- Committed and pushed the Day 7 AI implementation to GitHub.
+
+### AI Environment
+
+```text
+Python SDK
+google-genai
+
+Environment Variable
+GEMINI_API_KEY
+
+AI Provider
+Google Gemini
