@@ -10,7 +10,10 @@ from schemas.trip import (
     TripRequest,
     TripResponse,
 )
-from services.ai_planning_service import generate_ai_itinerary
+from services.ai_planning_service import (
+    generate_ai_itinerary,
+    generate_best_itinerary,
+)
 from services.planning_service import generate_itinerary
 from services.trip_service import (
     create_trip,
@@ -179,3 +182,21 @@ def get_ai_trip_itinerary(
         )
 
     return generate_ai_itinerary(trip)
+
+@app.get(
+    "/api/trips/{trip_id}/plan",
+    response_model=ItineraryResponse,
+)
+def get_best_trip_plan(
+    trip_id: int,
+    db: Session = Depends(get_db),
+):
+    trip = get_trip_by_id(db, trip_id)
+
+    if trip is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Trip not found",
+        )
+
+    return generate_best_itinerary(trip)

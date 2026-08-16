@@ -6,6 +6,7 @@ from services.constraint_service import (
     validate_ai_itinerary,
     validate_trip_constraints,
 )
+from services.planning_service import generate_itinerary
 from services.prompt_service import build_itinerary_prompt
 
 
@@ -96,3 +97,38 @@ You MUST:
         "AI itinerary failed validation after "
         f"{MAX_ITINERARY_ATTEMPTS} attempts: {last_error}"
     )
+
+
+def generate_best_itinerary(trip: Trip) -> ItineraryResponse:
+    try:
+        return generate_ai_itinerary(trip)
+
+    except Exception:
+        itinerary = generate_itinerary(trip)
+
+        duration_days = (
+            trip.end_date - trip.start_date
+        ).days + 1
+
+        interests = [
+            interest.strip()
+            for interest in trip.interests.split(",")
+            if interest.strip()
+        ]
+
+        return ItineraryResponse(
+            message="AI planning unavailable. Deterministic itinerary generated successfully.",
+            trip_id=trip.id,
+            destination=trip.destination,
+            start_date=trip.start_date,
+            end_date=trip.end_date,
+            metadata={
+                "duration_days": duration_days,
+                "travelers": trip.travelers,
+                "budget": trip.budget,
+                "travel_style": trip.travel_style,
+                "interests": interests,
+                "planning_type": "deterministic-fallback",
+            },
+            itinerary=itinerary,
+        )

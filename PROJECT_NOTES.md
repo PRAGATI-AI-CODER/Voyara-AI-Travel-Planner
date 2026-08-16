@@ -1300,3 +1300,62 @@ Prompt Service
 Gemini API
 
 
+
+---
+
+## Day 9 — August 16, 2026
+
+### Milestone: Unified AI Planning with Deterministic Fallback
+
+### Objective
+
+Improve Voyara's itinerary planning architecture by introducing a unified planning endpoint that attempts personalized Gemini AI planning first and automatically falls back to the deterministic planner when AI planning is unavailable or fails.
+
+### Completed
+
+- Added `generate_best_itinerary()` to `backend/services/ai_planning_service.py`.
+- Added AI-first itinerary generation.
+- Added deterministic itinerary fallback when AI planning fails.
+- Preserved the existing AI itinerary generation pipeline.
+- Preserved the existing deterministic itinerary planner.
+- Added a unified planning endpoint:
+  - `GET /api/trips/{trip_id}/plan`
+- Kept the existing deterministic endpoint available:
+  - `GET /api/trips/{trip_id}/itinerary`
+- Kept the existing AI-only endpoint available:
+  - `GET /api/trips/{trip_id}/ai-itinerary`
+- Added explicit fallback response messaging.
+- Added `deterministic-fallback` as the fallback planning type.
+- Verified the unified planning endpoint through Swagger UI.
+- Verified successful AI itinerary generation through the unified endpoint.
+- Simulated an AI failure without modifying the Gemini configuration.
+- Verified that the deterministic planner is automatically used when AI planning fails.
+- Verified the fallback response preserves trip metadata and itinerary structure.
+- Verified the fallback generates a valid itinerary for the existing Paris Trip ID 1.
+
+### Unified Planning Architecture
+
+Voyara now provides a single planning endpoint that automatically selects the best available planning engine.
+
+```text
+Client
+   ↓
+GET /api/trips/{trip_id}/plan
+   ↓
+generate_best_itinerary()
+   ↓
+Try AI Planner
+   │
+   ├── Success
+   │      ↓
+   │   Gemini AI Itinerary
+   │
+   └── Failure
+          ↓
+      Deterministic Planner
+   │
+   └──────────────┬──────────────┘
+                  ↓
+          ItineraryResponse
+
+

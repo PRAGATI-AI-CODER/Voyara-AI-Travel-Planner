@@ -794,3 +794,46 @@ Gemini
 Pydantic
  ↓
 Itinerary
+
+
+---
+
+## Day 9 — August 16, 2026
+
+### Milestone: Unified AI Planning with Deterministic Fallback
+
+### Added
+
+- Added `generate_best_itinerary()` to `backend/services/ai_planning_service.py`.
+- Added AI-first itinerary generation.
+- Added deterministic fallback when AI planning fails.
+- Added unified planning endpoint:
+  - `GET /api/trips/{trip_id}/plan`
+- Preserved the existing deterministic itinerary endpoint.
+- Preserved the existing AI-only itinerary endpoint.
+- Added explicit fallback response messaging.
+- Added `deterministic-fallback` planning metadata.
+- Added automatic selection between AI and deterministic planning engines.
+
+### Unified Planning Flow
+
+The planning architecture now follows:
+
+```text
+Client
+   ↓
+GET /api/trips/{trip_id}/plan
+   ↓
+generate_best_itinerary()
+   ↓
+Try AI Planner
+   │
+   ├── Success
+   │      ↓
+   │   AI Itinerary
+   │
+   └── Failure
+          ↓
+   Deterministic Planner
+          ↓
+   Final ItineraryResponse
