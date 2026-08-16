@@ -616,7 +616,7 @@ End-to-end testing            ✅
 - Verified existing trips remain unaffected after deletion.
 - Verified complete frontend → FastAPI → PostgreSQL integration.
 
-### Day 5 Status
+### Status
 
 ```text
 Structured response schemas     ✅
@@ -743,3 +743,54 @@ Backend-controlled Metadata
 ItineraryResponse
 
 
+---
+
+## Day 8 — August 16, 2026
+
+### Milestone: Constraint-Aware AI Planning and Itinerary Validation
+
+### Added
+
+- Created `backend/services/constraint_service.py`.
+- Added centralized travel-style planning rules.
+- Added centralized interest-based planning rules.
+- Added relaxed travel planning constraints.
+- Added food-interest planning constraints.
+- Added culture-interest planning constraints.
+- Added support for additional travel styles and interests through rule mappings.
+- Added trip-level constraint validation.
+- Added trip duration calculation.
+- Added approximate daily budget calculation.
+- Added approximate per-traveler daily budget calculation.
+- Added centralized AI constraint instruction generation.
+- Connected constraint instructions to the AI itinerary planning pipeline.
+- Added explicit planning guidance for travel pace.
+- Added explicit planning guidance for food and culinary experiences.
+- Added explicit planning guidance for cultural experiences.
+- Added budget-aware planning guidance.
+- Added realistic pacing guidance.
+- Added geographic activity grouping guidance.
+- Added guidance against inventing real-time prices, availability, opening hours, temporary events, or reservations.
+- Added AI itinerary day-count validation.
+- Added itinerary date validation.
+- Added itinerary day-number validation.
+- Added destination validation.
+- Added morning, afternoon, and evening content validation.
+- Added duplicate date detection.
+- Added duplicate day-number detection.
+- Added duplicate daily-content detection.
+
+### AI Planning
+
+The AI planning flow was strengthened from:
+
+```text
+Trip
+ ↓
+Prompt
+ ↓
+Gemini
+ ↓
+Pydantic
+ ↓
+Itinerary

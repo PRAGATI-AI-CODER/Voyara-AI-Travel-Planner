@@ -1224,3 +1224,79 @@ GEMINI_API_KEY
 
 AI Provider
 Google Gemini
+
+
+
+---
+
+## Day 8 — August 16, 2026
+
+### Milestone: Constraint-Aware AI Planning and Itinerary Validation
+
+### Objective
+
+Strengthen Voyara's Gemini-powered itinerary planner by introducing a dedicated constraint layer that translates traveler preferences into explicit planning rules and validates AI-generated itineraries before they are returned by the backend.
+
+### Completed
+
+- Created `backend/services/constraint_service.py`.
+- Added centralized travel-style planning rules.
+- Added centralized interest-based planning rules.
+- Added explicit relaxed-travel constraints.
+- Added explicit food-interest constraints.
+- Added explicit culture-interest constraints.
+- Added support for additional travel styles and interests through rule mappings.
+- Added trip-level constraint validation.
+- Added trip duration calculation.
+- Added approximate daily budget calculation.
+- Added approximate per-traveler daily budget calculation.
+- Added a centralized constraint instruction builder.
+- Connected constraint rules to the AI itinerary planning pipeline.
+- Added explicit planning instructions for travel pace.
+- Added explicit planning instructions for food and culinary experiences.
+- Added explicit planning instructions for cultural experiences.
+- Added budget-aware planning guidance.
+- Added guidance to avoid unrealistic schedules.
+- Added guidance to group geographically close activities where possible.
+- Added protection against treating AI-generated prices, availability, opening hours, or temporary events as verified real-time information.
+- Added AI itinerary structural validation.
+- Added itinerary day-count validation.
+- Added itinerary date validation.
+- Added itinerary day-number validation.
+- Added destination validation for every generated itinerary day.
+- Added morning, afternoon, and evening content validation.
+- Added duplicate date detection.
+- Added duplicate day-number detection.
+- Added completely duplicated daily-content detection.
+- Kept the deterministic itinerary planner available as the baseline planning system.
+- Verified the enhanced AI planner using the saved Paris trip.
+- Verified a complete 7-day AI-generated Paris itinerary.
+- Verified relaxed travel constraints influence itinerary pacing.
+- Verified food and culture constraints influence generated activities.
+- Verified the generated itinerary passes the backend validation layer.
+- Verified the complete PostgreSQL → Trip Service → Constraint Layer → AI Planning Service → Gemini → Pydantic Validation → API response flow.
+
+### Constraint Layer
+
+The constraint layer translates stored traveler preferences into explicit instructions for the AI planner.
+
+```text
+Saved Trip
+    ↓
+Trip Service
+    ↓
+Constraint Service
+    ↓
+Travel Style Rules
+    +
+Interest Rules
+    +
+Budget Guidance
+    ↓
+AI Planning Service
+    ↓
+Prompt Service
+    ↓
+Gemini API
+
+
