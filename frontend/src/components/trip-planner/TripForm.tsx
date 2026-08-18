@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 
+const API_BASE_URL = "http://127.0.0.1:8000";
+
 const travelStyles = ["Adventure", "Relaxed", "Luxury", "Budget"];
 
 const interests = [
@@ -23,6 +25,32 @@ interface TripFormData {
   interests: string[];
 }
 
+interface ItineraryDay {
+  day: number;
+  date: string;
+  destination: string;
+  morning: string;
+  afternoon: string;
+  evening: string;
+}
+
+interface ItineraryResponse {
+  message: string;
+  trip_id: number;
+  destination: string;
+  start_date: string;
+  end_date: string;
+  metadata: {
+    duration_days: number;
+    travelers: number;
+    budget: number;
+    travel_style: string;
+    interests: string[];
+    planning_type: string;
+  };
+  itinerary: ItineraryDay[];
+}
+
 export default function TripForm() {
   const [formData, setFormData] = useState<TripFormData>({
     destination: "",
@@ -37,6 +65,8 @@ export default function TripForm() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const [itinerary, setItinerary] =
+    useState<ItineraryResponse | null>(null);
 
   const toggleItem = (
     item: string,
@@ -54,27 +84,69 @@ export default function TripForm() {
     setLoading(true);
     setMessage("");
     setError("");
+    setItinerary(null);
 
     try {
-      const response = await fetch("http://127.0.0.1:8000/api/trips", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      const createResponse = await fetch(
+        `${API_BASE_URL}/api/trips`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(formData),
         },
-        body: JSON.stringify(formData),
-      });
+      );
 
-      const data = await response.json();
+      const tripData = await createResponse.json();
 
-      if (!response.ok) {
+      if (!createResponse.ok) {
         const validationMessage =
-          data.detail?.[0]?.msg || "Something went wrong.";
+          tripData.detail?.[0]?.msg ||
+          tripData.detail ||
+          "Unable to create trip.";
 
         throw new Error(validationMessage);
       }
 
-      setMessage("Trip received successfully! Voyara is ready to plan.");
-      console.log("Voyara API response:", data);
+      const tripId = tripData.trip?.id;
+
+      if (!tripId) {
+        throw new Error(
+          "Trip was created, but no trip ID was returned.",
+        );
+      }
+
+      setMessage("Trip created. Voyara is planning your journey...");
+
+      const itineraryResponse = await fetch(
+        `${API_BASE_URL}/api/trips/${tripId}/plan`,
+      );
+
+      const itineraryData =
+        await itineraryResponse.json();
+
+      if (!itineraryResponse.ok) {
+        const planningMessage =
+          itineraryData.detail?.[0]?.msg ||
+          itineraryData.detail ||
+          "Unable to generate itinerary.";
+
+        throw new Error(planningMessage);
+      }
+
+      setItinerary(itineraryData);
+
+      setMessage(
+        itineraryData.metadata?.planning_type === "ai"
+          ? "Your AI-powered journey is ready."
+          : "Your journey is ready.",
+      );
+
+      console.log(
+        "Voyara itinerary:",
+        itineraryData,
+      );
     } catch (err) {
       setError(
         err instanceof Error
@@ -91,7 +163,7 @@ export default function TripForm() {
       id="trip-planner"
       className="min-h-screen bg-white px-6 py-24"
     >
-      <div className="mx-auto max-w-4xl">
+      <div className="mx-auto max-w-5xl">
         <div className="mb-12 text-center">
           <p className="mb-3 text-sm font-semibold uppercase tracking-[0.2em] text-gray-500">
             Build your journey
@@ -99,12 +171,15 @@ export default function TripForm() {
 
           <h2 className="text-4xl font-semibold tracking-tight text-gray-900 sm:text-5xl">
             Tell us what makes your
-            <span className="block text-gray-500">perfect trip.</span>
+            <span className="block text-gray-500">
+              perfect trip.
+            </span>
           </h2>
 
           <p className="mx-auto mt-5 max-w-2xl text-lg leading-8 text-gray-600">
-            Give Voyara a few details. We&apos;ll use them to understand your
-            travel preferences and build a personalized journey.
+            Give Voyara a few details. We&apos;ll use them to
+            understand your travel preferences and build a
+            personalized journey.
           </p>
         </div>
 
@@ -236,13 +311,16 @@ export default function TripForm() {
 
               <div className="flex flex-wrap gap-3">
                 {travelStyles.map((style) => {
-                  const selected = formData.travel_style.includes(style);
+                  const selected =
+                    formData.travel_style.includes(style);
 
                   return (
                     <button
                       key={style}
                       type="button"
-                      onClick={() => toggleItem(style, "travel_style")}
+                      onClick={() =>
+                        toggleItem(style, "travel_style")
+                      }
                       className={`rounded-full border px-5 py-2.5 text-sm font-medium transition ${
                         selected
                           ? "border-gray-900 bg-gray-900 text-white"
@@ -263,13 +341,16 @@ export default function TripForm() {
 
               <div className="flex flex-wrap gap-3">
                 {interests.map((interest) => {
-                  const selected = formData.interests.includes(interest);
+                  const selected =
+                    formData.interests.includes(interest);
 
                   return (
                     <button
                       key={interest}
                       type="button"
-                      onClick={() => toggleItem(interest, "interests")}
+                      onClick={() =>
+                        toggleItem(interest, "interests")
+                      }
                       className={`rounded-full border px-5 py-2.5 text-sm font-medium transition ${
                         selected
                           ? "border-gray-900 bg-gray-900 text-white"
@@ -289,7 +370,9 @@ export default function TripForm() {
               disabled={loading}
               className="mt-2 w-full rounded-2xl bg-gray-900 px-6 py-4 text-base font-semibold text-white transition hover:bg-gray-700 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {loading ? "Building your journey..." : "Build My Journey →"}
+              {loading
+                ? "Voyara is planning..."
+                : "Build My Journey →"}
             </button>
 
             {message && (
@@ -301,6 +384,80 @@ export default function TripForm() {
             {error && (
               <div className="rounded-2xl border border-red-200 bg-red-50 px-5 py-4 text-sm font-medium text-red-800">
                 {error}
+              </div>
+            )}
+
+            {itinerary && (
+              <div className="mt-10 space-y-6">
+                <div className="border-b border-gray-200 pb-6">
+                  <p className="text-sm font-semibold uppercase tracking-[0.2em] text-gray-500">
+                    Your Voyara Journey
+                  </p>
+
+                  <h3 className="mt-2 text-3xl font-semibold text-gray-900">
+                    {itinerary.destination}
+                  </h3>
+
+                  <p className="mt-2 text-gray-600">
+                    {itinerary.start_date} →{" "}
+                    {itinerary.end_date}
+                  </p>
+
+                  <p className="mt-3 text-sm text-gray-500">
+                    {itinerary.metadata.duration_days} days ·{" "}
+                    {itinerary.metadata.travelers} travelers ·{" "}
+                    {itinerary.metadata.travel_style}
+                  </p>
+                </div>
+
+                {itinerary.itinerary.map((day) => (
+                  <div
+                    key={day.day}
+                    className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm"
+                  >
+                    <div className="mb-6">
+                      <p className="text-sm font-semibold uppercase tracking-[0.15em] text-gray-500">
+                        Day {day.day}
+                      </p>
+
+                      <h4 className="mt-1 text-xl font-semibold text-gray-900">
+                        {day.date}
+                      </h4>
+                    </div>
+
+                    <div className="grid gap-6 md:grid-cols-3">
+                      <div>
+                        <p className="mb-2 text-sm font-semibold text-gray-900">
+                          Morning
+                        </p>
+
+                        <p className="text-sm leading-7 text-gray-600">
+                          {day.morning}
+                        </p>
+                      </div>
+
+                      <div>
+                        <p className="mb-2 text-sm font-semibold text-gray-900">
+                          Afternoon
+                        </p>
+
+                        <p className="text-sm leading-7 text-gray-600">
+                          {day.afternoon}
+                        </p>
+                      </div>
+
+                      <div>
+                        <p className="mb-2 text-sm font-semibold text-gray-900">
+                          Evening
+                        </p>
+
+                        <p className="text-sm leading-7 text-gray-600">
+                          {day.evening}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
             )}
           </div>

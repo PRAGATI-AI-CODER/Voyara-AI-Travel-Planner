@@ -174,7 +174,7 @@ def get_interest_rules(trip: Trip) -> list[str]:
 
 def build_constraint_instructions(trip: Trip) -> str:
     """
-    Build explicit planning constraints for the AI prompt.
+    Build explicit planning constraints for the AI.
     """
 
     duration_days = get_trip_duration(trip)
@@ -274,14 +274,21 @@ CONSTRAINT RULES
 16. Prefer geographically sensible activity grouping.
 17. Do not invent live prices, current availability, opening hours,
     temporary events, or reservations.
-18. Treat specific businesses and attractions as recommendations unless
+18. Keep the itinerary geographically centered on the stated destination.
+19. If the destination is a specific city or town, do not move the traveler
+    to a different unrelated city during the trip.
+20. Nearby day trips are allowed only when they are geographically
+    reasonable and consistent with the destination.
+21. Do not create a multi-city itinerary unless the traveler explicitly
+    requests multiple destinations.
+22. Treat specific businesses and attractions as recommendations unless
     verified by a future real-time data source.
-19. The approximate daily budget is a planning guideline, not an exact
+23. The approximate daily budget is a planning guideline, not an exact
     expense calculation.
-20. Do not claim that the itinerary fits an exact real-world price
+24. Do not claim that the itinerary fits an exact real-world price
     without verified pricing data.
-21. Do not make every activity revolve around the traveler's interests.
-22. Maintain variety while giving the requested interests clear priority.
+25. Do not make every activity revolve around the traveler's interests.
+26. Maintain variety while giving the requested interests clear priority.
 """.strip()
 
 
