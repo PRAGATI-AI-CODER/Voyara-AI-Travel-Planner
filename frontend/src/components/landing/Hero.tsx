@@ -5,7 +5,8 @@ export default function Hero() {
 
       <div className="relative z-10 mx-auto flex w-full max-w-5xl flex-col items-center text-center">
         <div className="mb-6 inline-flex items-center rounded-full border border-black/10 bg-white/70 px-4 py-2 text-sm font-medium text-gray-700 backdrop-blur">
-          ✦ AI-powered travel intelligence
+          <span className="mr-2">✦</span>
+          AI-powered travel intelligence
         </div>
 
         <h1 className="max-w-4xl text-5xl font-semibold tracking-tight text-gray-900 sm:text-6xl lg:text-7xl">
@@ -25,7 +26,7 @@ export default function Hero() {
             href="#trip-planner"
             className="rounded-full bg-gray-900 px-7 py-3.5 text-sm font-semibold text-white transition hover:bg-gray-700"
           >
-            Start planning →
+            Start planning <span className="ml-1">→</span>
           </a>
 
           <a
@@ -65,9 +66,12 @@ function Feature({
   description: string;
 }) {
   return (
-    <div className="rounded-2xl border border-black/10 bg-white/70 p-5 shadow-sm backdrop-blur">
+    <div className="rounded-2xl border border-black/10 bg-white/70 p-5 shadow-sm backdrop-blur transition duration-300 hover:-translate-y-1 hover:shadow-md">
       <h2 className="font-semibold text-gray-900">{title}</h2>
-      <p className="mt-2 text-sm leading-6 text-gray-600">{description}</p>
+
+      <p className="mt-2 text-sm leading-6 text-gray-600">
+        {description}
+      </p>
     </div>
   );
 }

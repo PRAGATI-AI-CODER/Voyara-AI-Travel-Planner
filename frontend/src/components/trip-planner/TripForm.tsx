@@ -51,6 +51,34 @@ interface ItineraryResponse {
   itinerary: ItineraryDay[];
 }
 
+const formatDate = (date: string) => {
+  if (!date) return "";
+
+  return new Date(`${date}T00:00:00`).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+};
+
+const formatBudget = (budget: number) => {
+  return new Intl.NumberFormat("en-IN", {
+    maximumFractionDigits: 0,
+  }).format(budget);
+};
+
+const getPlanningLabel = (planningType: string) => {
+  if (planningType === "ai") {
+    return "AI planned";
+  }
+
+  if (planningType === "deterministic-fallback") {
+    return "Fallback plan";
+  }
+
+  return "Smart plan";
+};
+
 export default function TripForm() {
   const [formData, setFormData] = useState<TripFormData>({
     destination: "",
@@ -117,7 +145,9 @@ export default function TripForm() {
         );
       }
 
-      setMessage("Trip created. Voyara is planning your journey...");
+      setMessage(
+        "Trip created. Voyara is planning your journey...",
+      );
 
       const itineraryResponse = await fetch(
         `${API_BASE_URL}/api/trips/${tripId}/plan`,
@@ -388,81 +418,197 @@ export default function TripForm() {
             )}
 
             {itinerary && (
-              <div className="mt-10 space-y-6">
-                <div className="border-b border-gray-200 pb-6">
-                  <p className="text-sm font-semibold uppercase tracking-[0.2em] text-gray-500">
-                    Your Voyara Journey
-                  </p>
+              <div className="mt-12 space-y-8">
+                {/* Journey header */}
+                <div className="rounded-3xl bg-gray-900 p-7 text-white shadow-sm sm:p-9">
+                  <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+                    <div>
+                      <div className="mb-3 flex items-center gap-2">
+                        <span className="rounded-full bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-gray-200">
+                          {getPlanningLabel(
+                            itinerary.metadata.planning_type,
+                          )}
+                        </span>
 
-                  <h3 className="mt-2 text-3xl font-semibold text-gray-900">
-                    {itinerary.destination}
-                  </h3>
+                        <span className="text-xs text-gray-400">
+                          Trip #{itinerary.trip_id}
+                        </span>
+                      </div>
 
-                  <p className="mt-2 text-gray-600">
-                    {itinerary.start_date} →{" "}
-                    {itinerary.end_date}
-                  </p>
-
-                  <p className="mt-3 text-sm text-gray-500">
-                    {itinerary.metadata.duration_days} days ·{" "}
-                    {itinerary.metadata.travelers} travelers ·{" "}
-                    {itinerary.metadata.travel_style}
-                  </p>
-                </div>
-
-                {itinerary.itinerary.map((day) => (
-                  <div
-                    key={day.day}
-                    className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm"
-                  >
-                    <div className="mb-6">
-                      <p className="text-sm font-semibold uppercase tracking-[0.15em] text-gray-500">
-                        Day {day.day}
+                      <p className="text-sm font-medium uppercase tracking-[0.2em] text-gray-400">
+                        Your Voyara Journey
                       </p>
 
-                      <h4 className="mt-1 text-xl font-semibold text-gray-900">
-                        {day.date}
-                      </h4>
+                      <h3 className="mt-2 text-4xl font-semibold tracking-tight sm:text-5xl">
+                        {itinerary.destination}
+                      </h3>
+
+                      <p className="mt-3 text-gray-300">
+                        {formatDate(itinerary.start_date)}{" "}
+                        <span className="mx-2 text-gray-500">
+                          →
+                        </span>{" "}
+                        {formatDate(itinerary.end_date)}
+                      </p>
                     </div>
 
-                    <div className="grid gap-6 md:grid-cols-3">
-                      <div>
-                        <p className="mb-2 text-sm font-semibold text-gray-900">
-                          Morning
-                        </p>
+                    <div className="grid grid-cols-2 gap-3 sm:min-w-[260px]">
+                      <JourneyStat
+                        label="Duration"
+                        value={`${itinerary.metadata.duration_days} days`}
+                      />
 
-                        <p className="text-sm leading-7 text-gray-600">
-                          {day.morning}
-                        </p>
-                      </div>
+                      <JourneyStat
+                        label="Travelers"
+                        value={`${itinerary.metadata.travelers}`}
+                      />
 
-                      <div>
-                        <p className="mb-2 text-sm font-semibold text-gray-900">
-                          Afternoon
-                        </p>
+                      <JourneyStat
+                        label="Budget"
+                        value={`₹${formatBudget(
+                          itinerary.metadata.budget,
+                        )}`}
+                      />
 
-                        <p className="text-sm leading-7 text-gray-600">
-                          {day.afternoon}
-                        </p>
-                      </div>
-
-                      <div>
-                        <p className="mb-2 text-sm font-semibold text-gray-900">
-                          Evening
-                        </p>
-
-                        <p className="text-sm leading-7 text-gray-600">
-                          {day.evening}
-                        </p>
-                      </div>
+                      <JourneyStat
+                        label="Style"
+                        value={itinerary.metadata.travel_style}
+                      />
                     </div>
                   </div>
-                ))}
+
+                  {itinerary.metadata.interests.length > 0 && (
+                    <div className="mt-7 border-t border-white/10 pt-5">
+                      <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-gray-400">
+                        Your interests
+                      </p>
+
+                      <div className="flex flex-wrap gap-2">
+                        {itinerary.metadata.interests.map(
+                          (interest) => (
+                            <span
+                              key={interest}
+                              className="rounded-full bg-white/10 px-3 py-1.5 text-xs font-medium text-gray-200"
+                            >
+                              {interest}
+                            </span>
+                          ),
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Daily itinerary */}
+                <div className="space-y-5">
+                  {itinerary.itinerary.map((day) => (
+                    <div
+                      key={day.day}
+                      className="overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-sm transition duration-300 hover:-translate-y-0.5 hover:shadow-md"
+                    >
+                      <div className="border-b border-gray-100 bg-[#f8f9f6] px-6 py-5 sm:px-7">
+                        <div className="flex items-center gap-4">
+                          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gray-900 text-sm font-bold text-white">
+                            {day.day}
+                          </div>
+
+                          <div>
+                            <p className="text-xs font-semibold uppercase tracking-[0.15em] text-gray-500">
+                              Day {day.day}
+                            </p>
+
+                            <h4 className="mt-1 text-xl font-semibold text-gray-900">
+                              {formatDate(day.date)}
+                            </h4>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="grid gap-0 md:grid-cols-3">
+                        <ActivityBlock
+                          title="Morning"
+                          icon="☀"
+                          content={day.morning}
+                          border
+                        />
+
+                        <ActivityBlock
+                          title="Afternoon"
+                          icon="◌"
+                          content={day.afternoon}
+                          border
+                        />
+
+                        <ActivityBlock
+                          title="Evening"
+                          icon="☾"
+                          content={day.evening}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="rounded-2xl border border-gray-200 bg-gray-50 px-5 py-4 text-center text-sm text-gray-500">
+                  Your itinerary is personalized around your selected
+                  destination, budget, travel style, and interests.
+                </div>
               </div>
             )}
           </div>
         </div>
       </div>
     </section>
+  );
+}
+
+function JourneyStat({
+  label,
+  value,
+}: {
+  label: string;
+  value: string;
+}) {
+  return (
+    <div className="rounded-2xl bg-white/10 px-4 py-3">
+      <p className="text-xs text-gray-400">{label}</p>
+      <p className="mt-1 truncate text-sm font-semibold text-white">
+        {value}
+      </p>
+    </div>
+  );
+}
+
+function ActivityBlock({
+  title,
+  icon,
+  content,
+  border = false,
+}: {
+  title: string;
+  icon: string;
+  content: string;
+  border?: boolean;
+}) {
+  return (
+    <div
+      className={`p-6 sm:p-7 ${
+        border
+          ? "border-b border-gray-100 md:border-b-0 md:border-r"
+          : ""
+      }`}
+    >
+      <div className="mb-3 flex items-center gap-2">
+        <span className="text-sm text-gray-400">{icon}</span>
+
+        <p className="text-sm font-semibold text-gray-900">
+          {title}
+        </p>
+      </div>
+
+      <p className="text-sm leading-7 text-gray-600">
+        {content}
+      </p>
+    </div>
   );
 }
