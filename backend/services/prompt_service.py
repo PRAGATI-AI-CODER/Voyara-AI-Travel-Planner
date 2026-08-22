@@ -77,4 +77,4 @@ Do NOT generate:
 - Additional fields
 
 The Voyara backend will add all trip metadata separately.
-""".strip()
+""".strip() 
