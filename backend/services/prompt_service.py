@@ -1,8 +1,18 @@
 from database.models import Trip
 
+from services.destination_intelligence import (
+    build_destination_knowledge_context,
+)
+from services.destination_service import build_destination_context
+
 
 def build_itinerary_prompt(trip: Trip) -> str:
     duration_days = (trip.end_date - trip.start_date).days + 1
+
+    destination_context = build_destination_context(trip)
+    destination_knowledge = build_destination_knowledge_context(
+        trip.destination
+    )
 
     return f"""
 You are Voyara, an intelligent AI travel planner.
@@ -20,6 +30,10 @@ Budget: {trip.budget}
 Travel Style: {trip.travel_style}
 Interests: {trip.interests}
 
+{destination_context}
+
+{destination_knowledge}
+
 PLANNING REQUIREMENTS
 
 1. Generate exactly {duration_days} itinerary days.
@@ -34,10 +48,13 @@ PLANNING REQUIREMENTS
 10. Avoid repeating the exact same activities on different days.
 11. Group geographically close activities when possible.
 12. Keep the pace realistic and enjoyable.
-13. Do not invent real-time information such as current opening hours,
+13. Prefer destination-specific experiences over generic activities.
+14. Balance major attractions with local cultural and food experiences.
+15. Avoid unnecessary backtracking between distant areas.
+16. Do not invent real-time information such as current opening hours,
     live prices, temporary events, or availability.
-14. Specific places may be recommended, but treat them as recommendations
-    rather than verified real-time information.
+17. Treat destination knowledge as planning context, not verified
+    real-time information.
 
 IMPORTANT
 
