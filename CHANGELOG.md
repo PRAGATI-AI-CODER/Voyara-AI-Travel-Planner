@@ -837,3 +837,39 @@ Try AI Planner
    Deterministic Planner
           ↓
    Final ItineraryResponse
+
+
+
+
+---
+
+## Day 12 — August 27, 2026
+
+### Milestone: Destination Intelligence Provider Architecture
+
+### Added
+
+- Converted destination intelligence into a provider-based architecture.
+- Added the `DestinationKnowledgeProvider` abstraction.
+- Added `BaseDestinationKnowledgeProvider`.
+- Added the `DestinationKnowledge` normalized data structure.
+- Integrated destination knowledge context into the AI itinerary planning pipeline.
+- Added automated tests for the destination provider.
+- Added `pytest` to backend requirements.
+
+### Architecture
+
+```text
+Trip
+  ↓
+Destination Context
+  ↓
+Destination Knowledge Provider
+  ↓
+Destination Knowledge
+  ↓
+AI Prompt
+  ↓
+Gemini
+  ↓
+Validated Itinerary
