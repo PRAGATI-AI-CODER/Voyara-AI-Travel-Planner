@@ -1359,3 +1359,64 @@ Try AI Planner
           ItineraryResponse
 
 
+---
+
+## Latest Development Update — August 27–28, 2026
+
+### Destination Intelligence Foundation
+
+Voyara's AI planning pipeline now includes a dedicated Destination Intelligence layer.
+
+### Added
+
+- Created `backend/services/destination_service.py`.
+- Created `backend/services/destination_intelligence.py`.
+- Added the `DestinationKnowledge` data structure.
+- Added the `DestinationKnowledgeProvider` abstraction.
+- Added `BaseDestinationKnowledgeProvider`.
+- Added provider-based destination knowledge retrieval.
+- Added prompt-ready destination knowledge context.
+- Integrated destination knowledge into the AI itinerary prompt.
+- Added destination-specific planning guidance.
+- Added geographic activity grouping guidance.
+- Added guidance to balance major attractions with local experiences.
+- Added guidance against treating static knowledge as real-time information.
+
+### Testing
+
+- Added `backend/services/destination_provider_test.py`.
+- Added provider contract testing.
+- Added destination knowledge validation.
+- Added empty-destination validation.
+- Installed `pytest`.
+- Added `pytest==9.1.1` to `backend/requirements.txt`.
+- Verified destination provider tests successfully pass.
+
+### Configuration
+
+- Added `backend/.env.example`.
+- Kept `GEMINI_API_KEY` and database credentials outside Git-tracked secrets.
+- Verified `.env` remains protected by `.gitignore`.
+
+### Current Architecture
+
+```text
+Trip
+  ↓
+Trip Service
+  ↓
+Destination Context
+  ↓
+Destination Knowledge Provider
+  ↓
+Destination Knowledge
+  ↓
+Prompt Service
+  ↓
+AI Planning Service
+  ↓
+Gemini
+  ↓
+Pydantic Validation
+  ↓
+Final Itinerary
