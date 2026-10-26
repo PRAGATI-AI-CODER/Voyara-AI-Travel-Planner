@@ -8,9 +8,8 @@ class DestinationKnowledge:
     Normalized destination knowledge used by Voyara's
     planning pipeline.
 
-    The model is intentionally provider-agnostic so that
-    knowledge can later come from static data, APIs,
-    databases, RAG systems, or real-time sources.
+    The model is provider-agnostic so knowledge can come from
+    static data, APIs, databases, RAG systems, or real-time sources.
     """
 
     destination: str
@@ -26,7 +25,7 @@ class DestinationKnowledgeProvider(ABC):
     """
     Interface for destination knowledge providers.
 
-    Future implementations can retrieve information from
+    Implementations can retrieve knowledge from static data,
     external APIs, databases, RAG systems, or other sources.
     """
 
@@ -35,9 +34,7 @@ class DestinationKnowledgeProvider(ABC):
         self,
         destination: str,
     ) -> DestinationKnowledge:
-        """
-        Retrieve normalized knowledge for a destination.
-        """
+        """Retrieve normalized knowledge for a destination."""
         raise NotImplementedError
 
 
@@ -45,10 +42,9 @@ class BaseDestinationKnowledgeProvider(
     DestinationKnowledgeProvider
 ):
     """
-    Current fallback provider.
+    Generic fallback provider.
 
-    This provider supplies generic planning guidance while
-    destination-specific knowledge integrations are being built.
+    Used when no destination-specific knowledge is available.
     """
 
     def get_knowledge(
@@ -58,9 +54,7 @@ class BaseDestinationKnowledgeProvider(
         normalized_destination = destination.strip()
 
         if not normalized_destination:
-            raise ValueError(
-                "Destination cannot be empty."
-            )
+            raise ValueError("Destination cannot be empty.")
 
         return DestinationKnowledge(
             destination=normalized_destination,
@@ -85,10 +79,7 @@ class StaticDestinationKnowledgeProvider(
     """
     Local structured knowledge provider.
 
-    This provider stores a small curated knowledge base locally.
-    It is intentionally separated from the fallback provider so
-    that it can later be replaced or extended by RAG, APIs,
-    databases, or other knowledge sources.
+    Stores a small curated destination knowledge base locally.
     """
 
     _knowledge_base = {
@@ -142,9 +133,7 @@ class StaticDestinationKnowledgeProvider(
         normalized_destination = destination.strip()
 
         if not normalized_destination:
-            raise ValueError(
-                "Destination cannot be empty."
-            )
+            raise ValueError("Destination cannot be empty.")
 
         knowledge = self._knowledge_base.get(
             normalized_destination.lower()
@@ -158,19 +147,43 @@ class StaticDestinationKnowledgeProvider(
         )
 
 
+class DestinationKnowledgeResolver:
+    """
+    Resolves the active destination knowledge provider.
+
+    The resolver creates a clean extension point for future
+    provider selection such as external APIs, RAG, databases,
+    or real-time travel information.
+    """
+
+    def __init__(
+        self,
+        provider: DestinationKnowledgeProvider | None = None,
+    ):
+        self._provider = provider
+
+    def resolve(self) -> DestinationKnowledgeProvider:
+        """
+        Return the configured provider or the current default
+        static provider.
+        """
+
+        if self._provider is not None:
+            return self._provider
+
+        return StaticDestinationKnowledgeProvider()
+
+
 def get_destination_knowledge(
     destination: str,
     provider: DestinationKnowledgeProvider | None = None,
 ) -> DestinationKnowledge:
     """
-    Retrieve destination knowledge through the configured provider.
+    Retrieve destination knowledge through the provider resolver.
     """
 
-    active_provider = (
-        provider
-        if provider is not None
-        else StaticDestinationKnowledgeProvider()
-    )
+    resolver = DestinationKnowledgeResolver(provider)
+    active_provider = resolver.resolve()
 
     return active_provider.get_knowledge(destination)
 
