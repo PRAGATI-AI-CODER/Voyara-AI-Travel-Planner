@@ -1,3 +1,4 @@
+import os
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 
@@ -151,9 +152,15 @@ class DestinationKnowledgeResolver:
     """
     Resolves the active destination knowledge provider.
 
-    The resolver creates a clean extension point for future
-    provider selection such as external APIs, RAG, databases,
-    or real-time travel information.
+    Provider selection is controlled through the
+    DESTINATION_PROVIDER environment variable.
+
+    Supported providers:
+    - static
+    - geoapify
+
+    Geoapify failures automatically fall back to the
+    static provider so itinerary generation remains available.
     """
 
     def __init__(
@@ -164,12 +171,29 @@ class DestinationKnowledgeResolver:
 
     def resolve(self) -> DestinationKnowledgeProvider:
         """
-        Return the configured provider or the current default
-        static provider.
+        Return the configured provider.
+
+        Explicit dependency injection takes priority.
+        Otherwise, DESTINATION_PROVIDER determines the provider.
         """
 
         if self._provider is not None:
             return self._provider
+
+        provider_name = os.getenv(
+            "DESTINATION_PROVIDER",
+            "static",
+        ).strip().lower()
+
+        if provider_name == "geoapify":
+            from services.providers.geoapify_provider import (
+                GeoapifyDestinationKnowledgeProvider,
+            )
+
+            try:
+                return GeoapifyDestinationKnowledgeProvider()
+            except ValueError:
+                return StaticDestinationKnowledgeProvider()
 
         return StaticDestinationKnowledgeProvider()
 
@@ -180,12 +204,28 @@ def get_destination_knowledge(
 ) -> DestinationKnowledge:
     """
     Retrieve destination knowledge through the provider resolver.
+
+    If the selected external provider fails during retrieval,
+    automatically fall back to the static provider so the
+    planning pipeline remains available.
     """
 
     resolver = DestinationKnowledgeResolver(provider)
     active_provider = resolver.resolve()
 
-    return active_provider.get_knowledge(destination)
+    try:
+        return active_provider.get_knowledge(destination)
+
+    except Exception:
+        if isinstance(
+            active_provider,
+            StaticDestinationKnowledgeProvider,
+        ):
+            raise
+
+        fallback_provider = StaticDestinationKnowledgeProvider()
+
+        return fallback_provider.get_knowledge(destination)
 
 
 def build_destination_knowledge_context(
