@@ -48,3 +48,5 @@ class Trip(Base):
         String(500),
         nullable=False,
     )
+
+from database.rag_models import DestinationDocument

@@ -4,14 +4,38 @@ from services.destination_intelligence import (
     build_destination_knowledge_context,
 )
 from services.destination_service import build_destination_context
+from services.rag_context_service import build_rag_context
 
 
 def build_itinerary_prompt(trip: Trip) -> str:
-    duration_days = (trip.end_date - trip.start_date).days + 1
+    duration_days = (
+        trip.end_date - trip.start_date
+    ).days + 1
 
-    destination_context = build_destination_context(trip)
-    destination_knowledge = build_destination_knowledge_context(
-        trip.destination
+    destination_context = build_destination_context(
+        trip
+    )
+
+    destination_knowledge = (
+        build_destination_knowledge_context(
+            trip.destination
+        )
+    )
+
+    rag_query = f"""
+Plan a {duration_days}-day trip to {trip.destination}
+for travelers interested in {trip.interests}.
+
+The travelers prefer a {trip.travel_style} travel style.
+They want destination-specific attractions, neighborhoods,
+food experiences, cultural experiences, and practical
+activities suitable for their trip.
+""".strip()
+
+    rag_context = build_rag_context(
+        destination=trip.destination,
+        query=rag_query,
+        top_k=3,
     )
 
     return f"""
@@ -32,7 +56,11 @@ Interests: {trip.interests}
 
 {destination_context}
 
+DESTINATION KNOWLEDGE
+
 {destination_knowledge}
+
+{rag_context}
 
 PLANNING REQUIREMENTS
 
@@ -53,8 +81,10 @@ PLANNING REQUIREMENTS
 15. Avoid unnecessary backtracking between distant areas.
 16. Do not invent real-time information such as current opening hours,
     live prices, temporary events, or availability.
-17. Treat destination knowledge as planning context, not verified
+17. Treat Geoapify and RAG data as planning context, not verified
     real-time information.
+18. Prefer information that is directly supported by the retrieved
+    destination knowledge when selecting destination-specific experiences.
 
 IMPORTANT
 
@@ -77,4 +107,4 @@ Do NOT generate:
 - Additional fields
 
 The Voyara backend will add all trip metadata separately.
-""".strip() 
+""".strip()
